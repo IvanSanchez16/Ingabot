@@ -1,3 +1,9 @@
 Pulibot
 
-Es necesario cambiar el token del archivo llamado token.js dentro del directorio principal y poner el token de discord proveniente de la pagina de discord
+Instalacion
+    -. Dentro de la carpeta crear el archivo token.js con la siguiente estructura:
+        const token = "TOKEN_DE_DISCORD";
+
+        export { token };
+        
+        Para poder utilizar el bot a desear
