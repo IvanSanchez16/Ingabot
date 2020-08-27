@@ -1,15 +1,15 @@
 import ytdl from "ytdl-core";
 
-function Comandos(msg){
+function comandos(msg){
     let mensaje = msg.content;
     if ( mensaje.startsWith('-puli ') ){
         let args = mensaje.split(' ');
         switch( args[1] ){
             case 'p':
-                Play(msg,args);  
+                playSong(msg,args);  
                 break;
             case 'skip':
-                Skip(msg);
+                skip(msg);
                 break;
         }
         return;
@@ -19,8 +19,25 @@ function Comandos(msg){
 var servers = {};
 var conexion = null;
 
-function Play(msg,args){
-    if ( ValidarPlay(args,msg) ){
+
+
+function play(connection,msg){
+    var server = servers[msg.guild.id];
+    server.dispatcher = connection.play( ytdl( server.queue[0], {filter: "audioonly"}) );
+    server.queue.shift();
+
+    server.dispatcher.on('finish', function(){
+        if ( server.queue[0] ){
+            play(connection,msg);
+        } else {
+            connection.disconnect();
+            conexion = null;
+        }
+    });
+}
+
+function playSong(msg,args){
+    if ( validarPlay(args,msg) ){
         if ( !servers[msg.guild.id] ){
             servers[msg.guild.id] = {
                 queue: []
@@ -39,27 +56,12 @@ function Play(msg,args){
     }
 }
 
-function Skip(msg){
+function skip(msg){
     var server = servers[msg.guild.id];
     if ( server.dispatcher ) server.dispatcher.end();
 }
 
-function play(connection,msg){
-    var server = servers[msg.guild.id];
-    server.dispatcher = connection.play( ytdl( server.queue[0], {filter: "audioonly"}) );
-    server.queue.shift();
-
-    server.dispatcher.on('finish', function(){
-        if ( server.queue[0] ){
-            play(connection,msg);
-        } else {
-            connection.disconnect();
-            conexion = null;
-        }
-    });
-}
-
-function ValidarPlay(args,msg){
+function validarPlay(args,msg){
     if ( !args[2] ){
         msg.channel.send("Como que se te olvido el link plebe pendejo");
         return false;
@@ -76,4 +78,5 @@ function ValidarPlay(args,msg){
     return true;
 }
 
-export { Comandos };
+
+export { comandos };

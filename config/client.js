@@ -1,6 +1,6 @@
 import { Client } from "discord.js";
-import { MensajesGeneral } from "../methods/messages.js"
-import { Comandos } from "../methods/comands.js"
+import { mensajesGeneral } from "../methods/messages.js"
+import { comandos } from "../methods/comands.js"
 
 const client = new Client();
 
@@ -12,10 +12,10 @@ client.on('ready', () => {
 client.on('message',(msg) => {
     if ( !msg.author.bot ){
         if ( msg.channel.name !== 'comandos' ){ //Mensajes general
-            MensajesGeneral(msg);
+            mensajesGeneral(msg);
             return;
         }
-        Comandos(msg);
+        comandos(msg); //mensaje canal comandos
     }
 });
 
