@@ -11,12 +11,6 @@ const respPulicuata = [
     'Pinche fifo'
 ];
 
-const saludos = [
-    'Que rollo',
-    'Hola!',
-    'Buenas!'
-];
-
 const respSolis = [
     "Te quiero Solis",
     'Pinche cerda de mierda',
@@ -27,53 +21,72 @@ const respSolis = [
     '* Zape *'
 ];
 
+const saludos = [
+    'Que rollo',
+    'Hola!',
+    'Buenas!'
+];
+
+
+
 var contador = 0;
 var puto = null;
 
 var band = false;
 var quien = null;
 
-function MensajesGeneral(msg){
+function mensajesGeneral(msg){
     if ( isComando(msg.content) ){ //Pones algun comando
-        Comando(msg);
+        comando(msg);
         return;
     }
     if ( msg.content.toLocaleLowerCase() === 'quien' || msg.content.toLocaleLowerCase() === 'quien?'){ //Pone alguien quien
-        Quien(msg);
+        quien(msg);
         return;
     }
     if ( band && msg.author.username === quien){ //Despues del Quien?
-        TePregunto(msg)
+        tePregunto(msg)
         return;
     }
     if ( msg.content.substr(0, 3) === 'put' && msg.content.length <= 10 && msg.content.length >= 6 ){ //Cuando se dice putifica el nombre de alguien
-        PutoElUltimo(msg);
+        putoElUltimo(msg);
         return;
     }
     if ( msg.content === 'hola puli' ){ //Saludo al bot
-        Saludo(msg);
+        saludo(msg);
         return;
     }
     if ( msg.content.toLocaleLowerCase().includes('pulicuata') ){ //Cuando mencionan la pulicuata
-        Pulicuata(msg);
+        pulicuata(msg);
         return;
     }
     if ( msg.author.username === 'LuiSolis' && Math.floor(Math.random() * 8) == 4){ //Mensaje de Luissb_32
-        MensajeSolis(msg);
+        mensajeSolis(msg);
         return;
     }
     if ( Math.floor(Math.random() * 15) == 4 ){ //Cualquier mensaje
-        MentadaDeMadre(msg);
+        mentadaDeMadre(msg);
         return;
     }
 }
 
-function Saludo(msg){
-    let number = Math.floor(Math.random() * saludos.length);
-    msg.channel.send( saludos[number] );
+function comando(msg){
+    msg.delete();
+    msg.channel.send('No pongas comandos aqui hijo de la verga');
 }
 
-function MentadaDeMadre(msg) {
+function isComando(msg){
+    let inicio = msg.startsWith('-') || msg.startsWith('!') || msg.startsWith('/');
+    let charCode = msg.charCodeAt(1);
+    return inicio && ( (charCode >= 65 && charCode<=90) || (charCode >= 97 && charCode<=122) );
+}
+
+function mensajeSolis(msg){
+    let number = Math.floor(Math.random() * respSolis.length);
+    msg.channel.send( respSolis[number] );
+} 
+
+function mentadaDeMadre(msg) {
     let number = Math.floor(Math.random() * insultos.length);
     if( number === 1 ){
         band = true;
@@ -82,13 +95,12 @@ function MentadaDeMadre(msg) {
     msg.channel.send(insultos[ number ]);
 }
 
-function TePregunto(msg){
-    band = false;
-    quien = null;
-    msg.channel.send("Te pregunto");
+function pulicuata(msg){
+    let number = Math.floor(Math.random() * respPulicuata.length);
+    msg.channel.send( respPulicuata[number] );
 }
 
-function PutoElUltimo(msg){
+function putoElUltimo(msg){
     if ( puto === null ){
         puto = msg.content;
         contador++;
@@ -107,29 +119,19 @@ function PutoElUltimo(msg){
     }
 }
 
-function Pulicuata(msg){
-    let number = Math.floor(Math.random() * respPulicuata.length);
-    msg.channel.send( respPulicuata[number] );
-}
-
-function MensajeSolis(msg){
-    let number = Math.floor(Math.random() * respSolis.length);
-    msg.channel.send( respSolis[number] );
-}
-
-function isComando(msg){
-    let inicio = msg.startsWith('-') || msg.startsWith('!') || msg.startsWith('/');
-    let charCode = msg.charCodeAt(1);
-    return inicio && ( (charCode >= 65 && charCode<=90) || (charCode >= 97 && charCode<=122) );
-}
-
-function Comando(msg){
-    msg.delete();
-    msg.channel.send('No pongas comandos aqui hijo de la verga');
-}
-
-function Quien(msg){
+function quien(msg){
     msg.channel.send('Te pregunto');
 }
 
-export { MensajesGeneral };
+function saludo(msg){
+    let number = Math.floor(Math.random() * saludos.length);
+    msg.channel.send( saludos[number] );
+}
+
+function tePregunto(msg){
+    band = false;
+    quien = null;
+    msg.channel.send("Te pregunto");
+}
+
+export { mensajesGeneral };
