@@ -33,6 +33,41 @@ var puto = null;
 var band = false;
 var quien = null;
 
+function MensajesGeneral(msg){
+    if ( isComando(msg.content) ){ //Pones algun comando
+        Comando(msg);
+        return;
+    }
+    if ( msg.content.toLocaleLowerCase() === 'quien' || msg.content.toLocaleLowerCase() === 'quien?'){ //Pone alguien quien
+        Quien(msg);
+        return;
+    }
+    if ( band && msg.author.username === quien){ //Despues del Quien?
+        TePregunto(msg)
+        return;
+    }
+    if ( msg.content.substr(0, 3) === 'put' && msg.content.length <= 10 && msg.content.length >= 6 ){ //Cuando se dice putifica el nombre de alguien
+        PutoElUltimo(msg);
+        return;
+    }
+    if ( msg.content === 'hola puli' ){ //Saludo al bot
+        Saludo(msg);
+        return;
+    }
+    if ( msg.author.username === 'LuiSolis' && Math.floor(Math.random() * 8) == 4){ //Mensaje de Luissb_32
+        MensajeSolis(msg);
+        return;
+    }
+    if ( msg.content.toLocaleLowerCase().includes('pulicuata') ){ //Cuando mencionan la pulicuata
+        Pulicuata(msg);
+        return;
+    }
+    if ( Math.floor(Math.random() * 15) == 4 ){ //Cualquier mensaje
+        MentadaDeMadre(msg);
+        return;
+    }
+}
+
 function Saludo(msg){
     let number = Math.floor(Math.random() * saludos.length);
     msg.channel.send( saludos[number] );
@@ -82,4 +117,19 @@ function MensajeSolis(msg){
     msg.channel.send( respSolis[number] );
 }
 
-export { quien, band, MentadaDeMadre, PutoElUltimo, TePregunto, Pulicuata, MensajeSolis, Saludo };
+function isComando(msg){
+    let inicio = msg.startsWith('-') || msg.startsWith('!') || msg.startsWith('/');
+    let charCode = msg.charCodeAt(1);
+    return inicio && ( (charCode >= 65 && charCode<=90) || (charCode >= 97 && charCode<=122) );
+}
+
+function Comando(msg){
+    msg.delete();
+    msg.channel.send('No pongas comandos aqui hijo de la verga');
+}
+
+function Quien(msg){
+    msg.channel.send('Te pregunto');
+}
+
+export { MensajesGeneral };
