@@ -6,10 +6,10 @@ function Comandos(msg){
         let args = mensaje.split(' ');
         switch( args[1] ){
             case 'p':
-                Play(mensaje,msg,args);  
+                Play(msg,args);  
                 break;
             case 'skip':
-                Skip(mensaje,msg,args);
+                Skip(msg);
                 break;
         }
         return;
@@ -19,8 +19,8 @@ function Comandos(msg){
 var servers = {};
 var conexion = null;
 
-function Play(mensaje,msg,args){
-    if ( ValidarPlay(args,msg,mensaje) ){
+function Play(msg,args){
+    if ( ValidarPlay(args,msg) ){
         if ( !servers[msg.guild.id] ){
             servers[msg.guild.id] = {
                 queue: []
@@ -59,7 +59,7 @@ function play(connection,msg){
     });
 }
 
-function ValidarPlay(args,msg,mensaje){
+function ValidarPlay(args,msg){
     if ( !args[2] ){
         msg.channel.send("Como que se te olvido el link plebe pendejo");
         return false;

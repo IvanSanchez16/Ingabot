@@ -54,12 +54,12 @@ function MensajesGeneral(msg){
         Saludo(msg);
         return;
     }
-    if ( msg.author.username === 'LuiSolis' && Math.floor(Math.random() * 8) == 4){ //Mensaje de Luissb_32
-        MensajeSolis(msg);
-        return;
-    }
     if ( msg.content.toLocaleLowerCase().includes('pulicuata') ){ //Cuando mencionan la pulicuata
         Pulicuata(msg);
+        return;
+    }
+    if ( msg.author.username === 'LuiSolis' && Math.floor(Math.random() * 8) == 4){ //Mensaje de Luissb_32
+        MensajeSolis(msg);
         return;
     }
     if ( Math.floor(Math.random() * 15) == 4 ){ //Cualquier mensaje
