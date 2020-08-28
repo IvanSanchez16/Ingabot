@@ -2,6 +2,7 @@ import ytdl from "ytdl-core"
 import Discord from  "discord.js"
 import { listaDeComandos } from "../config/listaComandos.js";
 import { isComando,comando } from "./messages.js";
+import { registrarCancion, obtenerCancion } from "../config/database.js";
 
 function comandos(msg){
     if ( !isComando(msg.content) ){
@@ -23,13 +24,18 @@ function comandos(msg){
                 break;
             default:
                 noExistente(msg); //Inserta comando que no existe
+                return; 
         }
+        msg.react('💩')
+        .then()
+        .catch(console.error)
         return;
     }
 }
 
 var servers = {};
 var conexion = null;
+const minEspera = 5;
 
 function listaComandos(msg){
     const embed = new Discord.MessageEmbed();
@@ -37,6 +43,7 @@ function listaComandos(msg){
     embed.setDescription('Comandos disponibles empezando con -puli')
     embed.addFields(listaDeComandos);
     embed.setColor([29, 200, 44]);
+    embed.setFooter('Reacciona con una 💩 cuando el comando tiene exito');
     msg.channel.send(embed);
 }
 
@@ -53,22 +60,46 @@ function play(connection,msg){
         if ( server.queue[0] ){
             play(connection,msg);
         } else {
-            connection.disconnect();
             conexion = null;
+            setTimeout(()=>{
+                if ( !conexion )
+                    connection.disconnect();
+            },1000 * (60 * minEspera)); //5 min de espera para salirse
         }
     });
 }
 
-function playSong(msg,args){
+async function playSong(msg,args){
     if ( validarPlay(args,msg) ){
         if ( !servers[msg.guild.id] ){
             servers[msg.guild.id] = {
                 queue: []
             }
         }
+        
+        let segundoArg = args[2];
+        if ( !segundoArg.includes('www.youtube.com/watch?') ){//-puli p nombre_cancion
+            try {
+                var link = await obtenerCancion(segundoArg.toLocaleLowerCase());
+              } catch(e) {
+                console.log(e);
+              }
+        } else { //-puli p link && -puli p link nombre
+            link = segundoArg;
+            if ( args[3] ){
+                let nombre = args[3];
+                if ( !registrarCancion(nombre.toLocaleLowerCase(), link) )
+                    msg.channel.send('Esa cancion ya fue registrada con otro nombre, buscala huevon')
+            } 
+        }
+        
+        if ( !link ){
+            msg.channel.send('Esa cancion no esta registrada, registrela huevon')
+            return;
+        }
 
         var server = servers[msg.guild.id];
-        server.queue.push( args[2] );
+        server.queue.push( link );
 
         if ( !conexion ){
             conexion = msg.member.voice.channel;
@@ -86,12 +117,7 @@ function skip(msg){
 
 function validarPlay(args,msg){
     if ( !args[2] ){
-        msg.channel.send("Como que se te olvido el link plebe pendejo");
-        return false;
-    }
-    let link = args[2];
-    if ( !link.includes('www.youtube.com/watch?') ){
-        msg.channel.send("Esa madre no es un link de yt crack");
+        msg.channel.send("Como que se te olvido el link o el nombre plebe pendejo");
         return false;
     }
     if ( !msg.member.voice.channel ){
