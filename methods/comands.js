@@ -1,6 +1,13 @@
-import ytdl from "ytdl-core";
+import ytdl from "ytdl-core"
+import Discord from  "discord.js"
+import { listaDeComandos } from "../config/listaComandos.js";
+import { isComando,comando } from "./messages.js";
 
 function comandos(msg){
+    if ( !isComando(msg.content) ){
+        comando(msg,false);
+        return;
+    }
     let mensaje = msg.content;
     if ( mensaje.startsWith('-puli ') ){
         let args = mensaje.split(' ');
@@ -11,6 +18,11 @@ function comandos(msg){
             case 'skip':
                 skip(msg);
                 break;
+            case 'h':
+                listaComandos(msg);
+                break;
+            default:
+                noExistente(msg); //Inserta comando que no existe
         }
         return;
     }
@@ -19,7 +31,18 @@ function comandos(msg){
 var servers = {};
 var conexion = null;
 
+function listaComandos(msg){
+    const embed = new Discord.MessageEmbed();
+    embed.setTitle('Lista de comandos');
+    embed.setDescription('Comandos disponibles empezando con -puli')
+    embed.addFields(listaDeComandos);
+    embed.setColor([29, 200, 44]);
+    msg.channel.send(embed);
+}
 
+function noExistente(msg){
+    msg.channel.send('No se ande inventando comandos compa');
+}
 
 function play(connection,msg){
     var server = servers[msg.guild.id];

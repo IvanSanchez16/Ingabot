@@ -27,8 +27,6 @@ const saludos = [
     'Buenas!'
 ];
 
-
-
 var contador = 0;
 var puto = null;
 
@@ -37,11 +35,11 @@ var quien = null;
 
 function mensajesGeneral(msg){
     if ( isComando(msg.content) ){ //Pones algun comando
-        comando(msg);
+        comando(msg,true);
         return;
     }
     if ( msg.content.toLocaleLowerCase() === 'quien' || msg.content.toLocaleLowerCase() === 'quien?'){ //Pone alguien quien
-        quien(msg);
+        respQuien(msg);
         return;
     }
     if ( band && msg.author.username === quien){ //Despues del Quien?
@@ -70,9 +68,10 @@ function mensajesGeneral(msg){
     }
 }
 
-function comando(msg){
+function comando(msg,band){
     msg.delete();
-    msg.channel.send('No pongas comandos aqui hijo de la verga');
+    let texto = band ? 'No pongas comandos aqui hijo de la verga' : 'No se si sabes leer, pero este canal es de comandos';
+    msg.channel.send(texto+' <@'+msg.author.id+">");
 }
 
 function isComando(msg){
@@ -119,7 +118,7 @@ function putoElUltimo(msg){
     }
 }
 
-function quien(msg){
+function respQuien(msg){
     msg.channel.send('Te pregunto');
 }
 
@@ -134,4 +133,4 @@ function tePregunto(msg){
     msg.channel.send("Te pregunto");
 }
 
-export { mensajesGeneral };
+export { mensajesGeneral, isComando, comando };
