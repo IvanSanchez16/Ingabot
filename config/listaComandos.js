@@ -12,6 +12,14 @@ const listaDeComandos = [
         value: 'Reproduce una cancion registrada previamente'
     },
     {
+        name: 'list',
+        value: 'Lista de canciones registradas'
+    },
+    {
+        name: 'delete {nombre cancion}',
+        value: 'Borrar una cancion registrada'
+    },
+    {
         name: 'skip',
         value: 'Saltar una canción'
     }

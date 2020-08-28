@@ -38,6 +38,19 @@ async function registrarCancion(nombre, enlace){
     return true;
 }
 
+function borrarCancion(nombre){
+    let numBorrados = cancionModel.deleteOne({ name: nombre })
+    .then(function(value){
+        return value;
+    });
+    return numBorrados;
+}
+
+function cancionesDisponibles(){
+    let canciones = cancionModel.find({});
+    return canciones;
+}
+
 function obtenerCancion(nombre){
     let enlace = cancionModel.findOne({ name: nombre })
     .then(function(cancion){
@@ -54,4 +67,4 @@ function obtenerCancionxEnlace(enlaceVideo){
     return nombre;
 }
 
-export { registrarCancion, obtenerCancion };
+export { registrarCancion, obtenerCancion, cancionesDisponibles, borrarCancion };

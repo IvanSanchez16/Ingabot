@@ -2,7 +2,7 @@ import ytdl from "ytdl-core"
 import Discord from  "discord.js"
 import { listaDeComandos } from "../config/listaComandos.js";
 import { isComando,comando } from "./messages.js";
-import { registrarCancion, obtenerCancion } from "../config/database.js";
+import { registrarCancion, obtenerCancion, cancionesDisponibles, borrarCancion } from "../config/database.js";
 
 function comandos(msg){
     if ( !isComando(msg.content) ){
@@ -16,11 +16,18 @@ function comandos(msg){
             case 'p':
                 playSong(msg,args);  
                 break;
+            case 'list':
+                listaCanciones(msg);
+                break;
             case 'skip':
                 skip(msg);
                 break;
-            case 'h':
+            case 'help':
                 listaComandos(msg);
+                break;
+            case 'delete':
+                if ( !borrarRegistro(msg, args) )
+                    return;
                 break;
             default:
                 noExistente(msg); //Inserta comando que no existe
@@ -37,8 +44,46 @@ var servers = {};
 var conexion = null;
 const minEspera = 5;
 
+async function borrarRegistro(msg, args){
+    if ( validarEliminar(msg, args) ){
+        let nomCancion = args[2];
+        try {
+            var bandBorrado = await borrarCancion( nomCancion.toLocaleLowerCase() );
+        }catch(e){
+            console.log(e);
+        }
+        if ( bandBorrado.deletedCount < 1 ){
+            msg.channel.send('No se que pedo pero no se borro jaja salu2');
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+async function listaCanciones(msg){
+    var lista = [];
+    try {
+        var canciones = await cancionesDisponibles();
+    }catch(e){
+        console.log(e);
+    }
+    canciones.forEach(cancion => {
+        lista.push({
+            name: cancion.name,
+            value: cancion.link
+        });
+    });
+    var embed = new Discord.MessageEmbed();
+    embed.setTitle('Lista de canciones');
+    embed.setDescription('Canciones registradas')
+    embed.addFields(lista);
+    embed.setColor([33, 180, 46]);
+    msg.channel.send(embed);
+}
+
 function listaComandos(msg){
-    const embed = new Discord.MessageEmbed();
+    var embed = new Discord.MessageEmbed();
     embed.setTitle('Lista de comandos');
     embed.setDescription('Comandos disponibles empezando con -puli')
     embed.addFields(listaDeComandos);
@@ -113,6 +158,18 @@ async function playSong(msg,args){
 function skip(msg){
     var server = servers[msg.guild.id];
     if ( server.dispatcher ) server.dispatcher.end();
+}
+
+function validarEliminar(msg, args){
+    if ( !args[2] ){
+        msg.channel.send("Ahorita elimino esa cancion llamada       ,pendejo");
+        return false;
+    }
+    if ( !obtenerCancion( args[2] ) ){
+        msg.channel.send("Ve y registrala primero para poder borrarla");
+        return false;
+    }
+    return true;
 }
 
 function validarPlay(args,msg){

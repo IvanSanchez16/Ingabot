@@ -5,8 +5,8 @@ import { comandos } from "../methods/comands.js"
 const client = new Client();
 
 client.on('ready', () => {
-    const channel = client.channels.cache.find(channel => channel.name === 'general');
-    channel.send('Ya llegue hijos de la verga');
+    //const channel = client.channels.cache.find(channel => channel.name === 'general');
+    //channel.send('Ya llegue hijos de la verga');
 });
 
 client.on('message',(msg) => {
