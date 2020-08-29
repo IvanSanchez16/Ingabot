@@ -19,6 +19,9 @@ function comandos(msg){
             case 'list':
                 listaCanciones(msg);
                 break;
+            case 'cs':
+                cancionActual(msg);
+                break;
             case 'skip':
                 skip(msg);
                 break;
@@ -43,6 +46,20 @@ function comandos(msg){
 var servers = {};
 var conexion = null;
 const minEspera = 5;
+var currentSong = null;
+var bandSalirse = false;
+
+function cancionActual(msg){
+    if ( !currentSong ){
+        msg.channel.send('No hay nada sonando verga');
+        return;
+    }
+    if( Math.floor(Math.random() * 100) === 4 ){
+        msg.channel.send('Que te valga verga');
+        return;
+    }
+    msg.channel.send('Link de la cancion '+currentSong);
+}
 
 async function borrarRegistro(msg, args){
     if ( validarEliminar(msg, args) ){
@@ -52,34 +69,49 @@ async function borrarRegistro(msg, args){
         }catch(e){
             console.log(e);
         }
-        if ( bandBorrado.deletedCount < 1 ){
-            msg.channel.send('No se que pedo pero no se borro jaja salu2');
+        if ( bandBorrado.deletedCount < 1 )
             return false;
-        }
         return true;
     }
     return false;
 }
 
 async function listaCanciones(msg){
+    let contSalto = 0;
+    let contArreglos = 0;
     var lista = [];
     try {
         var canciones = await cancionesDisponibles();
     }catch(e){
         console.log(e);
     }
+
+    lista.push([]);
     canciones.forEach(cancion => {
-        lista.push({
+        lista[contArreglos].push({
             name: cancion.name,
             value: cancion.link
         });
+        contSalto++;
+        if ( contSalto >= 25 ){
+            contArreglos++;
+            contSalto = 0;
+            lista.push([]);
+        }
     });
     var embed = new Discord.MessageEmbed();
     embed.setTitle('Lista de canciones');
     embed.setDescription('Canciones registradas')
-    embed.addFields(lista);
+    embed.addFields(lista[0]);
     embed.setColor([33, 180, 46]);
     msg.channel.send(embed);
+
+    for(let i=1 ; i<lista.length ; i++){
+        embed = new Discord.MessageEmbed();
+        embed.addFields(lista[i]);
+        embed.setColor([33, 180, 46]);
+        msg.channel.send(embed);
+    }
 }
 
 function listaComandos(msg){
@@ -98,7 +130,9 @@ function noExistente(msg){
 
 function play(connection,msg){
     var server = servers[msg.guild.id];
+    bandSalirse = false;
     server.dispatcher = connection.play( ytdl( server.queue[0], {filter: "audioonly"}) );
+    currentSong = server.queue[0];
     server.queue.shift();
 
     server.dispatcher.on('finish', function(){
@@ -106,8 +140,9 @@ function play(connection,msg){
             play(connection,msg);
         } else {
             conexion = null;
+            bandSalirse = true;
             setTimeout(()=>{
-                if ( !conexion )
+                if ( !conexion && bandSalirse)
                     connection.disconnect();
             },1000 * (60 * minEspera)); //5 min de espera para salirse
         }
@@ -125,14 +160,21 @@ async function playSong(msg,args){
         let segundoArg = args[2];
         if ( !segundoArg.includes('www.youtube.com/watch?') ){//-puli p nombre_cancion
             try {
-                var link = await obtenerCancion(segundoArg.toLocaleLowerCase());
+                let nombre = '';
+                for ( let i=2 ; i<args.length ; i++)
+                    nombre = nombre + args[i] + ' ';
+                nombre.trim();
+                var link = await obtenerCancion(nombre.toLocaleLowerCase());
               } catch(e) {
                 console.log(e);
               }
         } else { //-puli p link && -puli p link nombre
             link = segundoArg;
             if ( args[3] ){
-                let nombre = args[3];
+                let nombre = '';
+                for ( let i=3 ; i<args.length ; i++)
+                    nombre = nombre + args[i] + ' ';
+                nombre.trim();
                 if ( !registrarCancion(nombre.toLocaleLowerCase(), link) )
                     msg.channel.send('Esa cancion ya fue registrada con otro nombre, buscala huevon')
             } 
@@ -160,12 +202,16 @@ function skip(msg){
     if ( server.dispatcher ) server.dispatcher.end();
 }
 
-function validarEliminar(msg, args){
+async function validarEliminar(msg, args){
     if ( !args[2] ){
         msg.channel.send("Ahorita elimino esa cancion llamada       ,pendejo");
         return false;
     }
-    if ( !obtenerCancion( args[2] ) ){
+    let band;
+    try{
+        band = await obtenerCancion( args[2] ); 
+    }catch(e){ console.log(e) }
+    if ( !band ){
         msg.channel.send("Ve y registrala primero para poder borrarla");
         return false;
     }

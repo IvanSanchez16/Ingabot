@@ -12,6 +12,10 @@ const listaDeComandos = [
         value: 'Reproduce una cancion registrada previamente'
     },
     {
+        name: 'cs',
+        value: 'Indica cual es la cancion en reproduccion actualmente'
+    },
+    {
         name: 'list',
         value: 'Lista de canciones registradas'
     },
