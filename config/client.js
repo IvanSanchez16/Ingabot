@@ -1,12 +1,11 @@
 import { Client } from "discord.js";
 import { mensajesGeneral } from "../methods/messages.js"
-import { comandos } from "../methods/comands.js"
+import { comandos } from "../methods/commands/comands.js"
 
 const client = new Client();
 
 client.on('ready', () => {
-    //const channel = client.channels.cache.find(channel => channel.name === 'general');
-    //channel.send('Ya llegue hijos de la verga');
+    console.log('Listo');
 });
 
 client.on('message',(msg) => {

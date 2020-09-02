@@ -1,2 +1,3 @@
 /config/token.js
+/config/apikey.js
 node_modules/**/*
