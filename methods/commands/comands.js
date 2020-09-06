@@ -1,9 +1,12 @@
 import ytdl from "ytdl-core"
 import Discord from "discord.js"
+import Genius from "genius-lyrics"
+import genLyrics from "genius-lyrics-api";
 import { listaDeComandos } from "../../config/listaComandos.js";
 import { isComando, comando } from "../messages.js";
 import { comandosPlaylist } from "../commands/playlist.js";
 import { execute } from "../../config/googleApi.js";
+import { tokenGenius } from "../../config/token.js";
 
 function comandos(msg) {
     if ( !servers[msg.guild.id] ) {
@@ -34,6 +37,9 @@ function comandos(msg) {
             case 'queue':
                 mostrarCola(msg);
                 break;
+            case 'lyrics':
+                mostrarLyrics(msg);
+                break;
             case 'help':
                 listaComandos(msg);
                 break;
@@ -51,8 +57,9 @@ function comandos(msg) {
     }
 }
 
+const g = new Genius.Client(tokenGenius);
+const { getLyrics, getSong } = genLyrics;
 var servers = {};
-var conexion = null;
 const minEspera = 5;
 
 function cancionActual(msg) {
@@ -111,6 +118,30 @@ function listaComandos(msg) {
     msg.channel.send(embed);
 }
 
+function mostrarLyrics(msg){
+    var server = servers[msg.guild.id];
+    if ( validarLyrics(msg,server) ){
+        g.tracks.search( server.currentSong.nombre, {limit: 1} )
+        .then(results => {
+            var song = results[0];
+            var options = {
+                apiKey: tokenGenius,
+                title: song.title,
+                artist: song.artist.name,
+                optimizeQuery: true
+            }
+            getLyrics(options).then( (lyrics) => {
+                var embed = new Discord.MessageEmbed();
+                embed.setTitle(song.title);
+                embed.setDescription(song.artist.name + '\n'+'\n'+'\n' + lyrics)
+                embed.setColor([29, 200, 44]);
+                embed.setFooter('Lyrics provided by genius');
+                msg.channel.send(embed);
+            }).catch(err => console.log(err));
+        }).catch(err => console.log(err));
+    }
+}
+
 function noExistente(msg) {
     msg.channel.send('No se ande inventando comandos compa');
 }
@@ -123,7 +154,7 @@ function play(connection, msg) {
     let id = cancion.id;
     let link = 'www.youtube.com/watch?v=' + id.videoId;
 
-    server.dispatcher = connection.play(ytdl(link, { filter: "audioonly" }));
+    server.dispatcher = connection.play( ytdl(link, { filter: "audioonly" }) );
     server.currentSong = cancion;
     server.queue.shift();
 
@@ -141,10 +172,27 @@ function play(connection, msg) {
     });
 }
 
+function playPlaylist(canciones,msg){
+    var server = servers[msg.guild.id];
+    canciones.forEach(cancion => {
+        let song = {
+            id: cancion.id[0],
+            snippet: cancion.snippet[0]
+        }
+        song.author = msg.author;
+        server.queue.push(song);
+    });
+
+    if (!server.conexion) {
+        server.conexion = msg.member.voice.channel;
+        server.conexion.join().then(function (connection) {
+            play(connection, msg);
+        });
+    }
+}
+
 async function playSong(msg, args) {
     if (validarPlay(args, msg)) {
-        
-
         let nombre = '';
         for (let i = 2; i < args.length; i++)
             nombre = nombre + args[i] + ' ';
@@ -155,6 +203,7 @@ async function playSong(msg, args) {
             console.log(error);
         }
         cancion.author = msg.author;
+        cancion.nombre = nombre;
         
         var server = servers[msg.guild.id];
         server.queue.push(cancion);
@@ -189,6 +238,14 @@ function validarCola(msg,server){
     return true;
 }
 
+function validarLyrics(msg, server){
+    if ( !server.currentSong ){
+        msg.channel.send('No hay ninguna canción en reproducción');
+        return false;
+    }
+    return true;
+}
+
 function validarPlay(args, msg) {
     if (!args[2]) {
         msg.channel.send("Como que se te olvido el nombre plebe pendejo");
@@ -202,4 +259,4 @@ function validarPlay(args, msg) {
 }
 
 
-export { comandos };
+export { comandos, playPlaylist };

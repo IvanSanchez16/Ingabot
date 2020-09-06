@@ -23,7 +23,7 @@ function obtenerCanciones(nombre){
     return canciones;
 }
 
-async function asignarCancion(nomPlaylist,nombre,enlace){
+async function asignarCancion(nomPlaylist,cancion){
     let playlistProvider;
     try {
         playlistProvider = playlistModel.findOne({ name: nomPlaylist })
@@ -31,11 +31,8 @@ async function asignarCancion(nomPlaylist,nombre,enlace){
             return pl;
         }); 
     } catch (e) {}
-    playlist = await playlistProvider;
-    playlist.canciones.push({
-        name: nombre,
-        link: enlace
-    });
+    let playlist = await playlistProvider;
+    playlist.canciones.push(cancion);
     await playlist.save();
 }
 

@@ -14,6 +14,18 @@ const listaDeComandos = [
     {
         name: 'queue',
         value: 'Muestra la cola de reproduccion'
+    },
+    {
+        name: 'pl create {nombre playlist}',
+        value: 'Crea una nueva playlist'
+    },
+    {
+        name: 'pl play {nombre playlist}',
+        value: 'Reproduce una playlist'
+    },
+    {
+        name: 'pl {nombre playlist} add {nombre de la cancion}',
+        value: 'Agrega una canción a la playlist'
     }
 ];
 
