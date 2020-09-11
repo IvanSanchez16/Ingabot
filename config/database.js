@@ -9,8 +9,9 @@ var cancionesSchemaJSON = {
 
 var playlistSchemaJSON = {
     name: String,
-    author: String,
-    canciones: [ { id: Array, snippet: Array } ]
+    author: Number,
+    server: Number,
+    canciones: [ { id: Array, snippet: Array, nombre: String  } ]
 };
 
 var playlist_schema = new mongoose.Schema(playlistSchemaJSON);

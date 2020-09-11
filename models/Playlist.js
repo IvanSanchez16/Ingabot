@@ -1,16 +1,52 @@
 import { playlistModel } from '../config/database.js'
 
-async function existePlaylist(nombre){
-    let enlace = await playlistModel.findOne({ name: nombre })
-    .then(function(playlist){
-        return !playlist ? null : playlist.name;
+
+function borrarPl(nombre, servidor){
+    playlistModel.deleteOne( { name:nombre, server:servidor } )
+    .then(function(response){
+        return response;
     });
-    return enlace;
 }
 
-async function registrarPlaylist(nombre){
+async function buscarCancion(nomPlaylist, nomCancion, servidor){
+    let playlistProvider;
+    try {
+        playlistProvider = playlistModel.findOne({ name: nomPlaylist, server: servidor })
+        .then(function(pl){
+            return pl;
+        }); 
+    } catch (e) {}
+    let playlist = await playlistProvider;
+    
+    let i;
+    let song = null;
+    for ( i=0 ; i<playlist.canciones.length ; i++){
+        if ( playlist.canciones[i].nombre == nomCancion ){
+            song = playlist.canciones[i];
+            song.index = i;
+            break;
+        }
+    }
+    return song;
+}
+
+async function existePlaylist(nombre, servidor){
+    let playlistProvider;
+    try {
+        playlistProvider = playlistModel.findOne({ name: nombre, server: servidor })
+        .then(function(pl){
+            return pl;
+        }); 
+    } catch (e) {}
+    let playlist = await playlistProvider;
+    return playlist;
+}
+
+async function registrarPlaylist(nombre,creador,servidor){
     let playlist = new playlistModel({
-        name: nombre
+        name: nombre,
+        author: creador,
+        server: servidor
     });    
     await playlist.save();
 }
@@ -23,10 +59,10 @@ function obtenerCanciones(nombre){
     return canciones;
 }
 
-async function asignarCancion(nomPlaylist,cancion){
+async function asignarCancion(nomPlaylist, cancion, servidor){
     let playlistProvider;
     try {
-        playlistProvider = playlistModel.findOne({ name: nomPlaylist })
+        playlistProvider = playlistModel.findOne({ name: nomPlaylist, server: servidor })
         .then(function(pl){
             return pl;
         }); 
@@ -36,4 +72,17 @@ async function asignarCancion(nomPlaylist,cancion){
     await playlist.save();
 }
 
-export { registrarPlaylist, existePlaylist, obtenerCanciones, asignarCancion }
+async function removerCancion(nomPlaylist, servidor, index){
+    let playlistProvider;
+    try {
+        playlistProvider = playlistModel.findOne({ name: nomPlaylist, server: servidor })
+        .then(function(pl){
+            return pl;
+        }); 
+    } catch (e) {}
+    let playlist = await playlistProvider;
+    playlist.canciones.splice(index, 1);
+    await playlist.save();
+}
+
+export { registrarPlaylist, existePlaylist, obtenerCanciones, asignarCancion, borrarPl, buscarCancion, removerCancion }

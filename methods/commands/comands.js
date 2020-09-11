@@ -29,7 +29,7 @@ function comandos(msg) {
                 playSong(msg, args);
                 break;
             case 'cs':
-                cancionActual(msg);
+                detallesCancion(msg, 1);
                 break;
             case 'skip':
                 skip(msg);
@@ -38,7 +38,8 @@ function comandos(msg) {
                 mostrarCola(msg);
                 break;
             case 'lyrics':
-                mostrarLyrics(msg);
+                msg.channel.send('Por el momento no funciona');
+                //mostrarLyrics(msg);
                 break;
             case 'help':
                 listaComandos(msg);
@@ -58,27 +59,46 @@ function comandos(msg) {
 }
 
 const g = new Genius.Client(tokenGenius);
-const { getLyrics, getSong } = genLyrics;
+const { getLyrics } = genLyrics;
 var servers = {};
 const minEspera = 5;
 
-function cancionActual(msg) {
+function detallesCancion(msg, band, song = null, plName = null) {
     var server = servers[msg.guild.id];
-    if (!server.currentSong) {
+    if (band === 1 && !server.currentSong) {
         msg.channel.send('No hay nada sonando verga');
         return;
     }
-    if (Math.floor(Math.random() * 100) === 4) {
+    if (band === 1 && Math.floor(Math.random() * 100) === 4) {
         msg.channel.send('Que te valga verga');
         return;
     }
-    let snippet = server.currentSong.snippet;
+    let snippet = band === 1 ? server.currentSong.snippet : song.snippet;
+    //Llega como array en ese escenario
+    if ( band === 5 )
+        snippet = snippet[0];
+
     var embed = new Discord.MessageEmbed();
-    embed.setTitle('En reproduccion');
+    let title;
+    switch(band){
+        case 1 || 4:
+            title = 'En reproduccion';
+            break;
+        case 2:
+            title = 'Agregado a la cola';
+            break;
+        case 3:
+            title = 'Agregado a ' + plName;
+            break;
+        case 5:
+            title = 'Eliminado de '+ plName;
+            break;
+    }
+    embed.setTitle(title);
     embed.setDescription(snippet.title);
     embed.setThumbnail(snippet.thumbnails.high.url);
     embed.setColor([33, 180, 46]);
-    embed.setFooter('['+server.currentSong.author.username+']');
+    embed.setFooter('['+ (band === 1 ? server.currentSong.author.username : song.author.username) +']');
     msg.channel.send(embed);
 }
 
@@ -174,10 +194,20 @@ function play(connection, msg) {
 
 function playPlaylist(canciones,msg){
     var server = servers[msg.guild.id];
+
+    //Mezclar arreglo
+    for (let i = canciones.length - 1; i > 0; i--) {
+		let indiceAleatorio = Math.floor(Math.random() * (i + 1));
+		let temporal = canciones[i];
+		canciones[i] = canciones[indiceAleatorio];
+		canciones[indiceAleatorio] = temporal;
+	}
+
     canciones.forEach(cancion => {
         let song = {
             id: cancion.id[0],
-            snippet: cancion.snippet[0]
+            snippet: cancion.snippet[0],
+            nombre: cancion.nombre
         }
         song.author = msg.author;
         server.queue.push(song);
@@ -206,6 +236,7 @@ async function playSong(msg, args) {
         cancion.nombre = nombre;
         
         var server = servers[msg.guild.id];
+        detallesCancion(msg,( !server.currentSong || !server.conexion ? 4 : 2 ), cancion);
         server.queue.push(cancion);
 
         if (!server.conexion) {
@@ -259,4 +290,4 @@ function validarPlay(args, msg) {
 }
 
 
-export { comandos, playPlaylist };
+export { comandos, playPlaylist, detallesCancion };

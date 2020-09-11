@@ -20,12 +20,20 @@ const listaDeComandos = [
         value: 'Crea una nueva playlist'
     },
     {
+        name: 'pl delete {nombre playlist}',
+        value: 'Borrar una playlist, solo el autor puede hacerlo'
+    },
+    {
         name: 'pl play {nombre playlist}',
         value: 'Reproduce una playlist'
     },
     {
         name: 'pl {nombre playlist} add {nombre de la cancion}',
         value: 'Agrega una canción a la playlist'
+    },
+    {
+        name: 'pl {nombre playlist} remove {nombre de la cancion}',
+        value: 'Elimina una cancion de la playlist'
     }
 ];
 
