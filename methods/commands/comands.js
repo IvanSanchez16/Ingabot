@@ -81,9 +81,6 @@ function detallesCancion(msg, band, song = null, plName = null) {
     var embed = new Discord.MessageEmbed();
     let title;
     switch(band){
-        case 1 || 4:
-            title = 'En reproduccion';
-            break;
         case 2:
             title = 'Agregado a la cola';
             break;
@@ -93,6 +90,8 @@ function detallesCancion(msg, band, song = null, plName = null) {
         case 5:
             title = 'Eliminado de '+ plName;
             break;
+        default:
+            title = 'En reproduccion';
     }
     embed.setTitle(title);
     embed.setDescription(snippet.title);
@@ -177,6 +176,7 @@ function play(connection, msg) {
     server.dispatcher = connection.play( ytdl(link, { filter: "audioonly" }) );
     server.currentSong = cancion;
     server.queue.shift();
+    server.dispatcher.setVolumeLogarithmic(0.7);
 
     server.dispatcher.on('finish', function () {
         if (server.queue[0]) {
@@ -278,13 +278,20 @@ function validarLyrics(msg, server){
 }
 
 function validarPlay(args, msg) {
+    if (!msg.member.voice.channel) {
+        msg.channel.send("Como quieres escuchar algo sin estar en un canal estupido");
+        return false;
+    }
     if (!args[2]) {
         msg.channel.send("Como que se te olvido el nombre plebe pendejo");
         return false;
     }
-    if (!msg.member.voice.channel) {
-        msg.channel.send("Como quieres escuchar algo sin estar en un canal estupido");
-        return false;
+    var expReg = new RegExp('^[A-Za-z0-9/-]*$');
+    for (let i = 2; i < args.length; i++){
+        if ( !expReg.test(args[i]) ){
+            msg.channel.send("No te pases de verga que es esa madre");
+            return false;
+        }
     }
     return true;
 }

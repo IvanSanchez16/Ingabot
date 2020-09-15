@@ -1,7 +1,7 @@
 Pulibot
 
 Instalacion
-    -. Dentro de la carpeta crear el archivo token.js con la siguiente estructura:
+    -. Dentro de la carpeta config crear el archivo token.js con la siguiente estructura:
         
             const token = "TOKEN_DE_DISCORD";
 
@@ -9,6 +9,14 @@ Instalacion
         
         
         Para poder utilizar el bot a desear
+    
+    -. Dentro de la misma carpeta crear el archivo apikey.js con la siguiente estructura:
+
+        const apiKey = "TOKEN_GOOGLE";
+
+        export { apiKey };
+
+        Esto es para consumir api de youtube y obtener los url con poner un nombre
 
     -. Ejecutar el comando 'npm install'
 
@@ -16,4 +24,4 @@ Instalacion
       Seguir el siguiente tutorial: https://www.youtube.com/watch?v=qjtmgCb8NcE
 
 Despertar el bot
-    -. Para correr el bot correr 'code index.js'
+    -. Para correr el bot correr 'node index.js'

@@ -2,6 +2,8 @@ import { existePlaylist, registrarPlaylist, asignarCancion, obtenerCanciones, bo
 import { execute } from "../../config/googleApi.js";
 import { playPlaylist, detallesCancion } from "./comands.js";
 
+var expReg = new RegExp('^[A-Za-z0-9/-\s]*$');
+
 function comandosPlaylist(msg, args) {
     if (!args[2]) {
         msg.channel.send('El comando esta incompleto');
@@ -63,8 +65,13 @@ async function editarPlaylist(msg, args, servidor) {
 
         i++;
         let cancion = '';
-        for (let k = i; k < args.length; k++)
+        for (let k = i; k < args.length; k++){
+            if ( !expReg.test(args[k]) ){
+                msg.channel.send("No te pases de verga que es esa madre");
+                return false;
+            }
             cancion = cancion + args[k] + ' ';
+        }
         cancion = cancion.trim();
         try {
             var song = await execute(cancion);
@@ -85,8 +92,13 @@ async function editarPlaylist(msg, args, servidor) {
         playlist = playlist.trim();
         i++;
         let cancion = '';
-        for (let k = i; k < args.length; k++)
+        for (let k = i; k < args.length; k++){
+            if ( !expReg.test(args[k]) ){
+                msg.channel.send("No te pases de verga que es esa madre");
+                return false;
+            }
             cancion = cancion + args[k] + ' ';
+        }
         cancion = cancion.trim();
         let band;
         try{
@@ -125,8 +137,13 @@ async function validarCrear(msg, args, servidor) {
         return false;
     }
     let nombre = '';
-    for (let i = 3; i < args.length; i++)
+    for (let i = 3; i < args.length; i++){
+        if ( !expReg.test(args[i]) ){
+            msg.channel.send("No te pases de verga que es esa madre, ponga un nombre bien");
+            return false;
+        }
         nombre = nombre + args[i] + ' ';
+    }
     nombre = nombre.trim();
     let band;
     try {
