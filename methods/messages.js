@@ -58,11 +58,11 @@ function mensajesGeneral(msg){
         pulicuata(msg);
         return;
     }
-    if ( msg.author.username === 'LuiSolis' && Math.floor(Math.random() * 8) == 4){ //Mensaje de Luissb_32
+    if ( msg.author.username === 'LuiSolis' && Math.floor(Math.random() * 15) == 4){ //Mensaje de Luissb_32
         mensajeSolis(msg);
         return;
     }
-    if ( Math.floor(Math.random() * 15) == 4 ){ //Cualquier mensaje
+    if ( Math.floor(Math.random() * 30) == 4 ){ //Cualquier mensaje
         mentadaDeMadre(msg);
         return;
     }
