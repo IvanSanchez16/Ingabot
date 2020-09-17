@@ -8,7 +8,7 @@ function borrarPl(nombre, servidor){
     });
 }
 
-async function buscarCancion(nomPlaylist, nomCancion, servidor){
+async function buscarCancion(nomPlaylist, nomCancion, servidor, band = 0){
     let playlistProvider;
     try {
         playlistProvider = playlistModel.findOne({ name: nomPlaylist, server: servidor })
@@ -18,10 +18,11 @@ async function buscarCancion(nomPlaylist, nomCancion, servidor){
     } catch (e) {}
     let playlist = await playlistProvider;
     
-    let i;
+    let i, title;
     let song = null;
     for ( i=0 ; i<playlist.canciones.length ; i++){
-        if ( playlist.canciones[i].nombre == nomCancion ){
+        title = band === 0 ? playlist.canciones[i].nombre : playlist.canciones[i].snippet[0].title; 
+        if ( title == nomCancion ){
             song = playlist.canciones[i];
             song.index = i;
             break;

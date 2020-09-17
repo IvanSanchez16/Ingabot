@@ -76,7 +76,6 @@ async function editarPlaylist(msg, args, servidor) {
         try {
             var song = await execute(cancion);
         } catch (error) { console.log(error) }
-        console.log(song);
         song.nombre = cancion;
         song.author = msg.author;
 
@@ -117,6 +116,39 @@ async function editarPlaylist(msg, args, servidor) {
     return;
 }
 
+async function registrarRecord(cancion,author, servidor){
+    let band;
+    try {
+        band = await existePlaylist(author, servidor);
+    } catch (e) {}
+    if( !band ) //No existe
+        registrarPlaylist(author,author,servidor);
+        
+    setTimeout(async() => {
+        let band2;
+        try{
+            band2 = await buscarCancion(author,cancion.snippet.title,servidor,1);
+        }catch(e){}
+        if ( !band2 ) 
+            asignarCancion(author, cancion, servidor); 
+    }, 2000 );
+}
+
+async function reproducirRecord(msg, args){
+    let band;
+    let servidor = msg.guild.id;
+    try{
+        band = await validarReproducir(msg, args, servidor);
+    }catch(e){}
+    if ( band ){
+        try {
+            var canciones = await obtenerCanciones( msg.author.id );
+        } catch (error) { console.log(error); }
+    
+        playPlaylist(canciones,msg);
+    }
+}
+
 async function reproducirPl(msg, args) {
     let playlist = '';
     let i;
@@ -133,7 +165,7 @@ async function reproducirPl(msg, args) {
 
 async function validarCrear(msg, args, servidor) {
     if (!args[3]) {
-        msg.channel.send('Hace falta el nombre de la playlist');
+        msg.channel.send('Todo eso? te faltó el nombre');
         return false;
     }
     let nombre = '';
@@ -150,7 +182,7 @@ async function validarCrear(msg, args, servidor) {
         band = await existePlaylist(nombre, servidor);
     } catch (e) {}
     if (band) {
-        msg.channel.send('Ya existe esa playlist');
+        msg.channel.send('Te ganaron el nombre chiquito');
         return false;
     }
     return true;
@@ -158,7 +190,7 @@ async function validarCrear(msg, args, servidor) {
 
 async function validarBorrar(msg, args, servidor){
     if (!args[3]) {
-        msg.channel.send('Hace falta el nombre de la playlist');
+        msg.channel.send('Todo eso? te faltó la playlist');
         return false;
     }
     let nombre = '';
@@ -171,15 +203,31 @@ async function validarBorrar(msg, args, servidor){
     } catch (e) {}
     if (!pl) {
         console.log('no existe');
-        msg.channel.send('No existe esa playlist');
+        msg.channel.send('La borré antes de que lo pidieras, no existía crack');
         return false;
     }
     let author = pl.author;
     if ( author != msg.author.id){
-        msg.channel.send('Tu no eres el autor de esta playlist');
+        msg.channel.send('Ahí vas de mamón a meterte en lo que no es tuyo, no puedes borrar playlist que no son tuyas');
         return false;
     }
     return true;
 }
 
-export { comandosPlaylist }
+async function validarReproducir(msg, args, servidor){
+    if ( args[2] !== 'record'){
+        msg.channel.send('Probablemente quisite decir record, o me equivoco puto imbecil?');
+        return false;
+    }
+    let band;
+    try {
+        band = await existePlaylist(msg.author.id, servidor);
+    } catch (e) {}
+    if (!band) {
+        msg.channel.send('Primero reproduce canciones para generar record, no tengo tu spotify pendejo');
+        return false;
+    }
+    return true;
+}
+
+export { comandosPlaylist, registrarRecord, reproducirRecord }

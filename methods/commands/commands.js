@@ -4,7 +4,7 @@ import Genius from "genius-lyrics"
 import genLyrics from "genius-lyrics-api";
 import { listaDeComandos } from "../../config/listaComandos.js";
 import { isComando, comando } from "../messages.js";
-import { comandosPlaylist } from "./playlist.js";
+import { comandosPlaylist, registrarRecord, reproducirRecord } from "./playlist.js";
 import { execute } from "../../config/googleApi.js";
 import { tokenGenius } from "../../config/token.js";
 
@@ -27,6 +27,9 @@ function comandos(msg) {
         switch (args[1]) {
             case 'p':
                 playSong(msg, args);
+                break;
+            case 'play':
+                reproducirRecord(msg, args);
                 break;
             case 'cs':
                 detallesCancion(msg, 1);
@@ -237,6 +240,7 @@ async function playSong(msg, args) {
         
         var server = servers[msg.guild.id];
         detallesCancion(msg,( !server.currentSong || !server.conexion ? 4 : 2 ), cancion);
+        registrarRecord(cancion, msg.author.id ,msg.guild.id);
         server.queue.push(cancion);
 
         if (!server.conexion) {
