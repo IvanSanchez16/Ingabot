@@ -1,6 +1,6 @@
 import { existePlaylist, registrarPlaylist, asignarCancion, obtenerCanciones, borrarPl, buscarCancion, removerCancion } from "../../models/Playlist.js";
 import { execute } from "../../config/googleApi.js";
-import { playPlaylist, detallesCancion } from "./comands.js";
+import { playPlaylist, detallesCancion } from "./commands.js";
 
 var expReg = new RegExp('^[A-Za-z0-9/-\s]*$');
 

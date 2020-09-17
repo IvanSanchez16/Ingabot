@@ -4,6 +4,10 @@ const listaDeComandos = [
         value: 'Reproducir canción',
     },
     {
+        name: 'p record',
+        value: 'Reproduce tu historial de canciones reproducidas'
+    },
+    {
         name: 'cs',
         value: 'Indica cual es la cancion en reproduccion actualmente'
     },

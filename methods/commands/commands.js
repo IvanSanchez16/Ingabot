@@ -4,7 +4,7 @@ import Genius from "genius-lyrics"
 import genLyrics from "genius-lyrics-api";
 import { listaDeComandos } from "../../config/listaComandos.js";
 import { isComando, comando } from "../messages.js";
-import { comandosPlaylist } from "../commands/playlist.js";
+import { comandosPlaylist } from "./playlist.js";
 import { execute } from "../../config/googleApi.js";
 import { tokenGenius } from "../../config/token.js";
 
@@ -286,7 +286,7 @@ function validarPlay(args, msg) {
         msg.channel.send("Como que se te olvido el nombre plebe pendejo");
         return false;
     }
-    var expReg = new RegExp('^[A-Za-z0-9/-]*$');
+    var expReg = new RegExp('^[A-Za-z0-9/-ñ]*$');
     for (let i = 2; i < args.length; i++){
         if ( !expReg.test(args[i]) ){
             msg.channel.send("No te pases de verga que es esa madre");
