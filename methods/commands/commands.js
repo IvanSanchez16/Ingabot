@@ -94,7 +94,7 @@ function detallesCancion(msg, band, song = null, plName = null) {
             title = 'Eliminado de '+ plName;
             break;
         default:
-            title = 'En reproduccion';
+            title = 'En reproducción';
     }
     embed.setTitle(title);
     embed.setDescription(snippet.title);
@@ -165,7 +165,7 @@ function mostrarLyrics(msg){
 }
 
 function noExistente(msg) {
-    msg.channel.send('No se ande inventando comandos compa');
+    msg.channel.send();
 }
 
 function play(connection, msg) {
@@ -254,6 +254,10 @@ async function playSong(msg, args) {
 
 function skip(msg) {
     var server = servers[msg.guild.id];
+    if (msg.member.voice.channel != server.conexion){
+        msg.channel.send('No andes cagando el palo a los demás mamón')
+        return false;
+    }
     if (server.dispatcher) server.dispatcher.end();
 }
 
@@ -284,6 +288,11 @@ function validarLyrics(msg, server){
 function validarPlay(args, msg) {
     if (!msg.member.voice.channel) {
         msg.channel.send("Como quieres escuchar algo sin estar en un canal estupido");
+        return false;
+    }
+    var server = servers[msg.guild.id];
+    if (server.conexion && msg.member.voice.channel !== server.conexion){
+        msg.channel.send('Te ganaron el bot, no soy omnipresente.....aún')
         return false;
     }
     if (!args[2]) {

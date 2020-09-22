@@ -11,7 +11,7 @@ client.on('ready', () => {
 
 client.on('message',(msg) => {
     if ( !msg.author.bot ){
-        if ( msg.channel.name === 'comandos' ){ //Comandos
+        if ( msg.channel.name === 'comandos' || msg.channel.name === 'ayuda'){ //Comandos
             comandos(msg);
             return;
         }
@@ -19,8 +19,11 @@ client.on('message',(msg) => {
             comandosCine(msg);
             return;
         }
-         //Mensaje general
-         mensajesGeneral(msg);
+        if( msg.channel.name !== 'sugerencias'){
+            //Mensaje en Ingacanales de cotorreo
+            mensajesGeneral(msg);   
+            return;
+        }
     }
 });
 
