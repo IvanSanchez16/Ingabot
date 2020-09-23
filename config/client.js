@@ -2,6 +2,8 @@ import { Client } from "discord.js";
 import { mensajesGeneral } from "../methods/messages.js"
 import { comandos } from "../methods/commands/commands.js"
 import { comandosCine } from "../methods/commands/cine.js";
+import { cambioEstadoVoz } from "../methods/cambioVoiceState.js";
+import { comandosCubiculo } from "../methods/commands/cubiculo.js";
 
 const client = new Client();
 
@@ -19,6 +21,10 @@ client.on('message',(msg) => {
             comandosCine(msg);
             return;
         }
+        if ( msg.channel.name === 'chat-tareas' ){ //Estudios
+            comandosCubiculo(msg);
+            return;
+        }
         if( msg.channel.name !== 'sugerencias'){
             //Mensaje en Ingacanales de cotorreo
             mensajesGeneral(msg);   
@@ -33,6 +39,10 @@ client.on('guildMemberAdd', member => {
     var role = member.guild.roles.cache.find(role => role.name === 'Ingainvitados');
     member.roles.add(role);
     channel.send(`Llegó ${member} ya vamonos`);
-  });
+});
+
+client.on('voiceStateUpdate',(oldState, newState) => {
+    //cambioEstadoVoz(oldState, newState);
+})
 
 export { client };
