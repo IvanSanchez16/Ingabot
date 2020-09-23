@@ -1,3 +1,5 @@
+import { mensajeTemporal } from "./msgTemporal.js";
+
 const insultos = [
     "Nos vale verga",
     "Quien?",
@@ -34,6 +36,8 @@ var band = false;
 var quien = null;
 
 function mensajesGeneral(msg){
+    if ( !comprobarMultimedia(msg) )
+            return;
     if ( isComando(msg.content) ){ //Pones algun comando
         comando(msg,true);
         return;
@@ -50,7 +54,7 @@ function mensajesGeneral(msg){
         putoElUltimo(msg);
         return;
     }
-    if ( msg.content === 'hola puli' ){ //Saludo al bot
+    if ( msg.content.toLocaleLowerCase() === 'hola puli' ){ //Saludo al bot
         saludo(msg);
         return;
     }
@@ -58,7 +62,7 @@ function mensajesGeneral(msg){
         pulicuata(msg);
         return;
     }
-    if ( msg.author.username === 'LuiSolis' && Math.floor(Math.random() * 15) == 4){ //Mensaje de Luissb_32
+    if ( msg.author.username === 'LuiSolis' && Math.floor(Math.random() * 25) == 4){ //Mensaje de Luissb_32
         mensajeSolis(msg);
         return;
     }
@@ -71,7 +75,25 @@ function mensajesGeneral(msg){
 function comando(msg,band){
     msg.delete();
     let texto = band ? 'No pongas comandos aqui hijo de la verga' : 'No se si sabes leer, pero este canal es de comandos';
-    msg.channel.send(texto+' <@'+msg.author.id+">");
+    mensajeTemporal(msg, texto+' <@'+msg.author.id+">");
+}
+
+function comprobarMultimedia(msg){
+    let texto;
+    let arryTemp = msg.attachments.first(1);
+    if ( msg.channel.name === 'multimedia' && arryTemp.length === 0){
+        msg.delete();
+        texto = 'M-U-L-T-I-M-E-D-I-A No para que pongas tus pendejadas';
+        mensajeTemporal(msg, texto+' <@'+msg.author.id+">");
+        return false;
+    }
+    if( msg.channel.name !== 'multimedia' && arryTemp.length > 0){
+        msg.delete();
+        texto = 'Hay un orden aquí cabron, tus chingaderas en multimedia....por favor';
+        mensajeTemporal(msg, texto+' <@'+msg.author.id+">");
+        return false;
+    }
+    return true;
 }
 
 function isComando(msg){

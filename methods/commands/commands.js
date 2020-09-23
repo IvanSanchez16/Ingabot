@@ -4,7 +4,7 @@ import Genius from "genius-lyrics"
 import genLyrics from "genius-lyrics-api";
 import { listaDeComandos } from "../../config/listaComandos.js";
 import { isComando, comando } from "../messages.js";
-import { comandosPlaylist } from "../commands/playlist.js";
+import { comandosPlaylist, registrarRecord, reproducirRecord } from "./playlist.js";
 import { execute } from "../../config/googleApi.js";
 import { tokenGenius } from "../../config/token.js";
 
@@ -27,6 +27,9 @@ function comandos(msg) {
         switch (args[1]) {
             case 'p':
                 playSong(msg, args);
+                break;
+            case 'play':
+                reproducirRecord(msg, args);
                 break;
             case 'cs':
                 detallesCancion(msg, 1);
@@ -91,7 +94,7 @@ function detallesCancion(msg, band, song = null, plName = null) {
             title = 'Eliminado de '+ plName;
             break;
         default:
-            title = 'En reproduccion';
+            title = 'En reproducción';
     }
     embed.setTitle(title);
     embed.setDescription(snippet.title);
@@ -162,7 +165,7 @@ function mostrarLyrics(msg){
 }
 
 function noExistente(msg) {
-    msg.channel.send('No se ande inventando comandos compa');
+    msg.channel.send();
 }
 
 function play(connection, msg) {
@@ -237,6 +240,7 @@ async function playSong(msg, args) {
         
         var server = servers[msg.guild.id];
         detallesCancion(msg,( !server.currentSong || !server.conexion ? 4 : 2 ), cancion);
+        registrarRecord(cancion, msg.author.id ,msg.guild.id);
         server.queue.push(cancion);
 
         if (!server.conexion) {
@@ -250,6 +254,10 @@ async function playSong(msg, args) {
 
 function skip(msg) {
     var server = servers[msg.guild.id];
+    if (msg.member.voice.channel != server.conexion){
+        msg.channel.send('No andes cagando el palo a los demás mamón')
+        return false;
+    }
     if (server.dispatcher) server.dispatcher.end();
 }
 
@@ -282,11 +290,16 @@ function validarPlay(args, msg) {
         msg.channel.send("Como quieres escuchar algo sin estar en un canal estupido");
         return false;
     }
+    var server = servers[msg.guild.id];
+    if (server.conexion && msg.member.voice.channel !== server.conexion){
+        msg.channel.send('Te ganaron el bot, no soy omnipresente.....aún')
+        return false;
+    }
     if (!args[2]) {
         msg.channel.send("Como que se te olvido el nombre plebe pendejo");
         return false;
     }
-    var expReg = new RegExp('^[A-Za-z0-9/-]*$');
+    var expReg = new RegExp('^[A-Za-z0-9/-ñ]*$');
     for (let i = 2; i < args.length; i++){
         if ( !expReg.test(args[i]) ){
             msg.channel.send("No te pases de verga que es esa madre");
