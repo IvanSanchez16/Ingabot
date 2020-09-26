@@ -142,7 +142,7 @@ async function reproducirRecord(msg, args){
     }catch(e){}
     if ( band ){
         try {
-            var canciones = await obtenerCanciones( msg.author.id );
+            var canciones = await obtenerCanciones( msg.author.id, servidor );
         } catch (error) { console.log(error); }
     
         playPlaylist(canciones,msg);

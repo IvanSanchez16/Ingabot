@@ -1,4 +1,11 @@
+import fs from "fs";
+
 function cambioEstadoVoz(oldState, newState){
+    var channel = newState.guild.channels.cache.find(ch => ch.id === newState.channelID);
+    if ( channel && !newState.serverMute && !newState.selfMute && newState.connection != null){
+        var userConnection = newState.connection;
+        console.log(userConnection);
+    }
     if ( checarPutoElUltimo(oldState, newState) ){
 
     }

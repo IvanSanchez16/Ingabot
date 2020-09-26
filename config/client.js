@@ -25,6 +25,10 @@ client.on('message',(msg) => {
             comandosCubiculo(msg);
             return;
         }
+        if( msg.channel.name === 'cartelera'){ //Cartelera cine
+
+            return;
+        }
         if( msg.channel.name !== 'sugerencias'){
             //Mensaje en Ingacanales de cotorreo
             mensajesGeneral(msg);   

@@ -122,7 +122,7 @@ function mostrarCola(msg){
         } 
     });
     if ( cont != server.queue.length )
-        embed.setFooter('Y ' + server.queue.length - cont + ' mas');
+        embed.setFooter('Y ' + (server.queue.length - cont) + ' más');
 
     embed.setTitle('Cola de reproduccion');
     embed.addFields(listaDeReproduccion);
@@ -176,11 +176,17 @@ function play(connection, msg) {
     let id = cancion.id;
     let link = 'www.youtube.com/watch?v=' + id.videoId;
 
-    server.dispatcher = connection.play( ytdl(link, { filter: "audioonly" }) );
+    let rs = ytdl(link, { filter: "audioonly", quality: "highestaudio" });
+    server.dispatcher = connection.play( rs );
+    ytdl.getBasicInfo(link, { filter: "audioonly", quality: "highestaudio" }).then( (value) =>{
+        let loudness = value.player_response.playerConfig.audioConfig.loudnessDb;
+        let fx = (loudness - 23) * ( -8 / 74);
+        fx = Math.log(fx) / 1.04;
+        server.dispatcher.setVolumeLogarithmic(fx);
+    });
+
     server.currentSong = cancion;
     server.queue.shift();
-    server.dispatcher.setVolumeLogarithmic(0.7);
-
     server.dispatcher.on('finish', function () {
         if (server.queue[0]) {
             play(connection, msg);
