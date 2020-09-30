@@ -4,12 +4,14 @@ import { comandos } from "../methods/commands/commands.js"
 import { comandosCine } from "../methods/commands/cine.js";
 import { cambioEstadoVoz } from "../methods/cambioVoiceState.js";
 import { comandosCubiculo } from "../methods/commands/cubiculo.js";
+import { streamAlert } from "../methods/streamAlert.js";
 
-const client = new Client();
+const client = new Client({disableEveryone: false});
 const Id = '747931336538587206';
 
 client.on('ready', () => {
     console.log('Listo');
+    streamAlert();
 });
 
 client.on('message',(msg) => {

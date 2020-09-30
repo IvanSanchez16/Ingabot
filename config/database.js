@@ -2,11 +2,6 @@ import mongoose from 'mongoose'
 
 mongoose.connect('mongodb://localhost/pulibot', {useNewUrlParser: true});
 
-var cancionesSchemaJSON = {
-    name:String,
-    link:String
-};
-
 var playlistSchemaJSON = {
     name: String,
     author: Number,
@@ -14,12 +9,18 @@ var playlistSchemaJSON = {
     canciones: [ { id: Array, snippet: Array, nombre: String  } ]
 };
 
+var streamerSchemaJSON = {
+    name: String,
+    channel: String,
+    islive: Boolean
+};
+
 var playlist_schema = new mongoose.Schema(playlistSchemaJSON);
 
-var cancion_schema = new mongoose.Schema(cancionesSchemaJSON);
+var streamer_schema = new mongoose.Schema(streamerSchemaJSON);
 
-var cancionModel = mongoose.model('canciones', cancion_schema);
+var streamerModel = mongoose.model('streamer', streamer_schema);
 
 var playlistModel = mongoose.model('playlists', playlist_schema);
 
-export { cancionModel, playlistModel };
+export { streamerModel, playlistModel };

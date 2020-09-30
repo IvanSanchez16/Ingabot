@@ -1,12 +1,9 @@
 import ytdl from "ytdl-core"
 import Discord from "discord.js"
-import Genius from "genius-lyrics"
-import genLyrics from "genius-lyrics-api";
 import { listaDeComandos } from "../../config/listaComandos.js";
 import { isComando, comando } from "../messages.js";
 import { comandosPlaylist, registrarRecord, reproducirRecord } from "./playlist.js";
 import { execute } from "../../config/googleApi.js";
-import { tokenGenius } from "../../config/token.js";
 
 function comandos(msg) {
     if (!servers[msg.guild.id]) {
@@ -61,8 +58,6 @@ function comandos(msg) {
     }
 }
 
-const g = new Genius.Client(tokenGenius);
-const { getLyrics } = genLyrics;
 var servers = {};
 const minEspera = 5;
 
@@ -150,27 +145,6 @@ function listaComandos(msg) {
     embed.setColor([29, 200, 44]);
     embed.setFooter('Reacciona con una 💩 cuando el comando tiene exito');
     msg.channel.send(embed);
-}
-
-function mostrarLyrics(msg) {
-    var server = servers[msg.guild.id];
-    if (validarLyrics(msg, server)) {
-        var song = server.currentSong;
-        var options = {
-            apiKey: tokenGenius,
-            title: song.title,
-            artist: song.artist.name,
-            optimizeQuery: true
-        }
-        getLyrics(options).then((lyrics) => {
-            var embed = new Discord.MessageEmbed();
-            embed.setTitle(song.title);
-            embed.setDescription(song.artist.name + '\n' + '\n' + '\n' + lyrics)
-            embed.setColor([29, 200, 44]);
-            embed.setFooter('Lyrics provided by genius');
-            msg.channel.send(embed);
-        }).catch(err => console.log(err));
-    }
 }
 
 function noExistente(msg) {
@@ -315,10 +289,10 @@ function validarPlay(args, msg) {
         msg.channel.send("Como que se te olvido el nombre plebe pendejo");
         return false;
     }
-    var expReg = new RegExp('^[A-Za-z0-9/-ñáíóúé]*$');
+    var expReg = new RegExp('^[A-Za-z0-9/-ñáíóúé.]*$');
     for (let i = 2; i < args.length; i++) {
         if (!expReg.test(args[i])) {
-            msg.channel.send("No te pases de verga que es esa madre");
+            msg.channel.send("No te compliques tanto con los caracteres, pon el nombre y ya verga");
             return false;
         }
     }
