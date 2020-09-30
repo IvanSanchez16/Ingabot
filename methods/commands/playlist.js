@@ -2,7 +2,7 @@ import { existePlaylist, registrarPlaylist, asignarCancion, obtenerCanciones, bo
 import { execute } from "../../config/googleApi.js";
 import { playPlaylist, detallesCancion } from "./commands.js";
 
-var expReg = new RegExp('^[A-Za-z0-9/-\s]*$');
+var expReg = new RegExp('^[A-Za-z0-9/-\sáíóúéñ]*$');
 
 function comandosPlaylist(msg, args) {
     if (!args[2]) {
@@ -16,7 +16,7 @@ function comandosPlaylist(msg, args) {
             crear(msg, args, servidor);
             break;
         case 'play':
-            reproducirPl(msg, args);
+            reproducirPl(msg, args, servidor);
             break;
         case 'delete':
             borrarPlaylist(msg, args, servidor);
@@ -149,7 +149,7 @@ async function reproducirRecord(msg, args){
     }
 }
 
-async function reproducirPl(msg, args) {
+async function reproducirPl(msg, args, servidor) {
     let playlist = '';
     let i;
     for (i = 3; i < args.length ; i++)
@@ -157,7 +157,7 @@ async function reproducirPl(msg, args) {
     playlist = playlist.trim();
 
     try {
-        var canciones = await obtenerCanciones( playlist.toLocaleLowerCase() );
+        var canciones = await obtenerCanciones( playlist.toLocaleLowerCase(), servidor );
     } catch (error) { console.log(error); }
 
     playPlaylist(canciones,msg);

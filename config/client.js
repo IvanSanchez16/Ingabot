@@ -6,6 +6,7 @@ import { cambioEstadoVoz } from "../methods/cambioVoiceState.js";
 import { comandosCubiculo } from "../methods/commands/cubiculo.js";
 
 const client = new Client();
+const Id = '747931336538587206';
 
 client.on('ready', () => {
     console.log('Listo');
@@ -26,7 +27,7 @@ client.on('message',(msg) => {
             return;
         }
         if( msg.channel.name === 'cartelera'){ //Cartelera cine
-
+                
             return;
         }
         if( msg.channel.name !== 'sugerencias'){
@@ -46,7 +47,7 @@ client.on('guildMemberAdd', member => {
 });
 
 client.on('voiceStateUpdate',(oldState, newState) => {
-    //cambioEstadoVoz(oldState, newState);
+    cambioEstadoVoz(oldState, newState);
 })
 
-export { client };
+export { client, Id };

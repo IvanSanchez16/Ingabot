@@ -1,6 +1,21 @@
 import fs from "fs";
+import { Id } from "../config/client.js";
+import { moverBot, desconectarBot } from "./commands/commands.js";
 
 function cambioEstadoVoz(oldState, newState){
+    //Pulibot
+    if ( newState.id === Id){
+        if ( newState.connection && typeof oldState.channelID !== 'undefined' ){
+            var channel = newState.guild.channels.cache.find(ch => ch.id === newState.channelID);
+            moverBot( channel );
+            return;
+        }
+        if ( !newState.channelID ){
+            desconectarBot( newState );
+            return;
+        }
+    }
+    /*
     var channel = newState.guild.channels.cache.find(ch => ch.id === newState.channelID);
     if ( channel && !newState.serverMute && !newState.selfMute && newState.connection != null){
         var userConnection = newState.connection;
@@ -9,6 +24,7 @@ function cambioEstadoVoz(oldState, newState){
     if ( checarPutoElUltimo(oldState, newState) ){
 
     }
+    */
 }
 
 function checarPutoElUltimo(oldVoiceState, newVoiceState){
