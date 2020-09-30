@@ -81,12 +81,6 @@ function comando(msg,band){
 function comprobarMultimedia(msg){
     let texto;
     let arryTemp = msg.attachments.first(1);
-    if ( msg.channel.name === 'multimedia' && arryTemp.length === 0){
-        msg.delete();
-        texto = 'M-U-L-T-I-M-E-D-I-A No para que pongas tus pendejadas';
-        mensajeTemporal(msg, texto+' <@'+msg.author.id+">");
-        return false;
-    }
     if( msg.channel.name !== 'multimedia' && arryTemp.length > 0){
         msg.delete();
         texto = 'Hay un orden aquí cabron, tus chingaderas en multimedia....por favor';

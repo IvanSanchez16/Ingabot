@@ -52,8 +52,8 @@ async function registrarPlaylist(nombre,creador,servidor){
     await playlist.save();
 }
 
-function obtenerCanciones(nombre){
-    let canciones = playlistModel.findOne({ name: nombre })
+function obtenerCanciones(nombre, servidor){
+    let canciones = playlistModel.findOne({ name: nombre, server: servidor })
     .then(function(playlist){
         return playlist.canciones;
     });

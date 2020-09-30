@@ -1,15 +1,12 @@
 import ytdl from "ytdl-core"
 import Discord from "discord.js"
-import Genius from "genius-lyrics"
-import genLyrics from "genius-lyrics-api";
 import { listaDeComandos } from "../../config/listaComandos.js";
 import { isComando, comando } from "../messages.js";
 import { comandosPlaylist, registrarRecord, reproducirRecord } from "./playlist.js";
 import { execute } from "../../config/googleApi.js";
-import { tokenGenius } from "../../config/token.js";
 
 function comandos(msg) {
-    if ( !servers[msg.guild.id] ) {
+    if (!servers[msg.guild.id]) {
         servers[msg.guild.id] = {
             queue: [],
             conexion: null,
@@ -61,10 +58,15 @@ function comandos(msg) {
     }
 }
 
-const g = new Genius.Client(tokenGenius);
-const { getLyrics } = genLyrics;
 var servers = {};
 const minEspera = 5;
+
+function desconectarBot(voiceState){
+    var server = servers[voiceState.guild.id];
+    server.conexion = null;
+    server.currentSong = null;
+    server.queue = [];
+}
 
 function detallesCancion(msg, band, song = null, plName = null) {
     var server = servers[msg.guild.id];
@@ -78,12 +80,12 @@ function detallesCancion(msg, band, song = null, plName = null) {
     }
     let snippet = band === 1 ? server.currentSong.snippet : song.snippet;
     //Llega como array en ese escenario
-    if ( band === 5 )
+    if (band === 5)
         snippet = snippet[0];
 
     var embed = new Discord.MessageEmbed();
     let title;
-    switch(band){
+    switch (band) {
         case 2:
             title = 'Agregado a la cola';
             break;
@@ -91,7 +93,7 @@ function detallesCancion(msg, band, song = null, plName = null) {
             title = 'Agregado a ' + plName;
             break;
         case 5:
-            title = 'Eliminado de '+ plName;
+            title = 'Eliminado de ' + plName;
             break;
         default:
             title = 'En reproducción';
@@ -100,34 +102,39 @@ function detallesCancion(msg, band, song = null, plName = null) {
     embed.setDescription(snippet.title);
     embed.setThumbnail(snippet.thumbnails.high.url);
     embed.setColor([33, 180, 46]);
-    embed.setFooter('['+ (band === 1 ? server.currentSong.author.username : song.author.username) +']');
+    embed.setFooter('[' + (band === 1 ? server.currentSong.author.username : song.author.username) + ']');
     msg.channel.send(embed);
 }
 
-function mostrarCola(msg){
+function mostrarCola(msg) {
     var server = servers[msg.guild.id];
-    if (!validarCola(msg,server)) 
+    if (!validarCola(msg, server))
         return;
     var embed = new Discord.MessageEmbed();
     let cont = 0;
     var listaDeReproduccion = [];
     let song;
     server.queue.forEach(cancion => {
-        if ( cont < 15 ){
+        if (cont < 15) {
             song = {
                 name: '#' + (++cont) + '   ' + cancion.snippet.title,
                 value: '[' + cancion.author.username + ']'
             }
-            listaDeReproduccion.push(song);    
-        } 
+            listaDeReproduccion.push(song);
+        }
     });
-    if ( cont != server.queue.length )
-        embed.setFooter('Y ' + server.queue.length - cont + ' mas');
+    if (cont != server.queue.length)
+        embed.setFooter('Y ' + (server.queue.length - cont) + ' más');
 
     embed.setTitle('Cola de reproduccion');
     embed.addFields(listaDeReproduccion);
     embed.setColor([29, 200, 44]);
     msg.channel.send(embed);
+}
+
+function moverBot(voiceChannel){
+    var server = servers[voiceChannel.guild.id];
+    server.conexion = voiceChannel;
 }
 
 function listaComandos(msg) {
@@ -138,30 +145,6 @@ function listaComandos(msg) {
     embed.setColor([29, 200, 44]);
     embed.setFooter('Reacciona con una 💩 cuando el comando tiene exito');
     msg.channel.send(embed);
-}
-
-function mostrarLyrics(msg){
-    var server = servers[msg.guild.id];
-    if ( validarLyrics(msg,server) ){
-        g.tracks.search( server.currentSong.nombre, {limit: 1} )
-        .then(results => {
-            var song = results[0];
-            var options = {
-                apiKey: tokenGenius,
-                title: song.title,
-                artist: song.artist.name,
-                optimizeQuery: true
-            }
-            getLyrics(options).then( (lyrics) => {
-                var embed = new Discord.MessageEmbed();
-                embed.setTitle(song.title);
-                embed.setDescription(song.artist.name + '\n'+'\n'+'\n' + lyrics)
-                embed.setColor([29, 200, 44]);
-                embed.setFooter('Lyrics provided by genius');
-                msg.channel.send(embed);
-            }).catch(err => console.log(err));
-        }).catch(err => console.log(err));
-    }
 }
 
 function noExistente(msg) {
@@ -176,11 +159,17 @@ function play(connection, msg) {
     let id = cancion.id;
     let link = 'www.youtube.com/watch?v=' + id.videoId;
 
-    server.dispatcher = connection.play( ytdl(link, { filter: "audioonly" }) );
+    let rs = ytdl(link, { filter: "audioonly", quality: "highestaudio" });
+    server.dispatcher = connection.play(rs);
+    ytdl.getBasicInfo(link, { filter: "audioonly", quality: "highestaudio" }).then((value) => {
+        let loudness = value.player_response.playerConfig.audioConfig.loudnessDb;
+        let fx = (loudness - 23) * (-8 / 74);
+        fx = Math.log(fx) / 1.04;
+        server.dispatcher.setVolumeLogarithmic(fx);
+    });
+
     server.currentSong = cancion;
     server.queue.shift();
-    server.dispatcher.setVolumeLogarithmic(0.7);
-
     server.dispatcher.on('finish', function () {
         if (server.queue[0]) {
             play(connection, msg);
@@ -195,16 +184,16 @@ function play(connection, msg) {
     });
 }
 
-function playPlaylist(canciones,msg){
+function playPlaylist(canciones, msg) {
     var server = servers[msg.guild.id];
 
     //Mezclar arreglo
     for (let i = canciones.length - 1; i > 0; i--) {
-		let indiceAleatorio = Math.floor(Math.random() * (i + 1));
-		let temporal = canciones[i];
-		canciones[i] = canciones[indiceAleatorio];
-		canciones[indiceAleatorio] = temporal;
-	}
+        let indiceAleatorio = Math.floor(Math.random() * (i + 1));
+        let temporal = canciones[i];
+        canciones[i] = canciones[indiceAleatorio];
+        canciones[indiceAleatorio] = temporal;
+    }
 
     canciones.forEach(cancion => {
         let song = {
@@ -237,14 +226,15 @@ async function playSong(msg, args) {
         }
         cancion.author = msg.author;
         cancion.nombre = nombre;
-        
+
         var server = servers[msg.guild.id];
-        detallesCancion(msg,( !server.currentSong || !server.conexion ? 4 : 2 ), cancion);
-        registrarRecord(cancion, msg.author.id ,msg.guild.id);
+        detallesCancion(msg, (!server.currentSong || !server.conexion ? 4 : 2), cancion);
+        registrarRecord(cancion, msg.author.id, msg.guild.id);
         server.queue.push(cancion);
 
         if (!server.conexion) {
             server.conexion = msg.member.voice.channel;
+            
             server.conexion.join().then(function (connection) {
                 play(connection, msg);
             });
@@ -254,31 +244,31 @@ async function playSong(msg, args) {
 
 function skip(msg) {
     var server = servers[msg.guild.id];
-    if (msg.member.voice.channel != server.conexion){
+    if (msg.member.voice.channel != server.conexion) {
         msg.channel.send('No andes cagando el palo a los demás mamón')
         return false;
     }
     if (server.dispatcher) server.dispatcher.end();
 }
 
-function validarCola(msg,server){
-    if ( !server.conexion ){
+function validarCola(msg, server) {
+    if (!server.conexion) {
         msg.channel.send('Nadie esta reproduciendo música');
         return false;
     }
-    if (msg.member.voice.channel != server.conexion){
+    if (msg.member.voice.channel != server.conexion) {
         msg.channel.send('No estas en el mismo canal de voz que el bot')
         return false;
     }
-    if ( server.queue.length === 0 ){
+    if (server.queue.length === 0) {
         msg.channel.send('Se terminó la cola, solo queda la canción sonante');
         return false;
     }
     return true;
 }
 
-function validarLyrics(msg, server){
-    if ( !server.currentSong ){
+function validarLyrics(msg, server) {
+    if (!server.currentSong) {
         msg.channel.send('No hay ninguna canción en reproducción');
         return false;
     }
@@ -291,7 +281,7 @@ function validarPlay(args, msg) {
         return false;
     }
     var server = servers[msg.guild.id];
-    if (server.conexion && msg.member.voice.channel !== server.conexion){
+    if (server.conexion && msg.member.voice.channel !== server.conexion) {
         msg.channel.send('Te ganaron el bot, no soy omnipresente.....aún')
         return false;
     }
@@ -299,10 +289,10 @@ function validarPlay(args, msg) {
         msg.channel.send("Como que se te olvido el nombre plebe pendejo");
         return false;
     }
-    var expReg = new RegExp('^[A-Za-z0-9/-ñ]*$');
-    for (let i = 2; i < args.length; i++){
-        if ( !expReg.test(args[i]) ){
-            msg.channel.send("No te pases de verga que es esa madre");
+    var expReg = new RegExp('^[A-Za-z0-9/-ñáíóúé.]*$');
+    for (let i = 2; i < args.length; i++) {
+        if (!expReg.test(args[i])) {
+            msg.channel.send("No te compliques tanto con los caracteres, pon el nombre y ya verga");
             return false;
         }
     }
@@ -310,4 +300,4 @@ function validarPlay(args, msg) {
 }
 
 
-export { comandos, playPlaylist, detallesCancion };
+export { comandos, playPlaylist, detallesCancion, moverBot, desconectarBot };
