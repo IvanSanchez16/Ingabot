@@ -1,8 +1,11 @@
-import { client_secret, client_id } from "../config/token.js";
+//import { client_secret, client_id } from "../config/token.js";
 import fetch from "node-fetch";
 import Discord from "discord.js"
 import { getStreamers, registrarStreamer, actualizarEstado } from "../models/Streamer.js";
 import { client } from "../config/client.js";
+
+const client_id = process.env.client_id
+const client_secret = process.env.client_secret;
 
 var bearer_token;
 var streamers;
