@@ -40,7 +40,7 @@ async function checaLive(){
     });
     setTimeout(() => {
         checaLive();
-    },1000 * 3);
+    },1000 * 30);
 }
 
 function enviarMensaje(streamer,data){
