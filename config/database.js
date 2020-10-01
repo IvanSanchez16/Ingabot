@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
 
-mongoose.connect('mongodb://localhost/pulibot', {useNewUrlParser: true});
+var pass = process.env.password;
+
+mongoose.connect(`mongodb+srv://pulibotheroku:${pass}@clusterbot.b8sfd.mongodb.net/pulibot?retryWrites=true&w=majority`, {useNewUrlParser: true});
 
 var playlistSchemaJSON = {
     name: String,
