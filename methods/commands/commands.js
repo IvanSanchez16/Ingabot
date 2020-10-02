@@ -148,7 +148,7 @@ function listaComandos(msg) {
 }
 
 function noExistente(msg) {
-    msg.channel.send();
+    msg.channel.send('Ese comando no existe, en el canal de ayuda vienen la lista');
 }
 
 function play(connection, msg) {
