@@ -6,8 +6,8 @@ mongoose.connect(`mongodb+srv://pulibotheroku:${pass}@clusterbot.b8sfd.mongodb.n
 
 var playlistSchemaJSON = {
     name: String,
-    author: Number,
-    server: Number,
+    author: String,
+    server: String,
     canciones: [ { id: Array, snippet: Array, nombre: String  } ]
 };
 
