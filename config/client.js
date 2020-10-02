@@ -10,7 +10,6 @@ const client = new Client({disableEveryone: false});
 const Id = '747931336538587206';
 
 client.on('ready', () => {
-    console.log(client.guilds);
     console.log('Listo');
     streamAlert();
 });
