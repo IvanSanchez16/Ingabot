@@ -150,19 +150,20 @@ async function reproducirRecord(msg, args){
 }
 
 async function reproducirPl(msg, args, servidor) {
-    let band;
-    try {
-        band = await existePlaylist(nombre, servidor);
-    } catch (e) {}
-    if (!band) {
-        msg.channel.send('No existe esa playlist we');
-        return;
-    }
     let playlist = '';
     let i;
     for (i = 3; i < args.length ; i++)
         playlist = playlist + args[i] + ' ';
     playlist = playlist.trim();
+
+    let band;
+    try {
+        band = await existePlaylist(playlist.toLocaleLowerCase(), servidor);
+    } catch (e) {}
+    if (!band) {
+        msg.channel.send('No existe esa playlist we');
+        return;
+    }
 
     try {
         var canciones = await obtenerCanciones( playlist.toLocaleLowerCase(), servidor );
