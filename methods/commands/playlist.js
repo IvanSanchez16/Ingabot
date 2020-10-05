@@ -1,6 +1,8 @@
-import { existePlaylist, registrarPlaylist, asignarCancion, obtenerCanciones, borrarPl, buscarCancion, removerCancion } from "../../models/Playlist.js";
+import { obtenerPlaylist,existePlaylist, registrarPlaylist, asignarCancion, obtenerCanciones, borrarPl, buscarCancion, removerCancion } from "../../models/Playlist.js";
 import { execute } from "../../config/googleApi.js";
 import { playPlaylist, detallesCancion } from "./commands.js";
+import Discord from "discord.js"
+
 
 var expReg = new RegExp('^[A-Za-z0-9/-\sáíóúéñ]*$');
 
@@ -20,6 +22,9 @@ function comandosPlaylist(msg, args) {
             break;
         case 'delete':
             borrarPlaylist(msg, args, servidor);
+            break;
+        case 'list':
+            listaPlaylist(msg, servidor);
             break;
         default:
             editarPlaylist(msg, args, servidor);
@@ -114,6 +119,38 @@ async function editarPlaylist(msg, args, servidor) {
     }
     msg.channel.send('Elige correctamente una opción')
     return;
+}
+
+async function listaPlaylist(msg, servidor){
+    let playlists;
+    try{
+        playlists = await obtenerPlaylist(servidor);
+    }catch(e){}
+    var embed = new Discord.MessageEmbed();
+    var listaPlaylists = [];
+    var listapl;
+    var autor;
+    embed.setTitle("Lista de playlists");
+    embed.setColor([33, 180, 69 ]);
+    playlists.forEach(pl => {
+        if ( pl.name !== pl.author ){
+            listapl = "";
+            autor = msg.guild.members.cache.find(m => m.id === pl.author);
+            listapl = `Autor: ${autor.user.username}\nCanciones:\n`;
+            pl.canciones.forEach(cancion => {
+                let snippet = cancion.snippet;
+                snippet = snippet[0];
+                listapl = listapl + `-.${snippet.title}\n`;
+            });
+            let plfield = {
+                name: pl.name,
+                value: listapl
+            };
+            listaPlaylists.push(plfield);
+        }
+    });
+    embed.addFields(listaPlaylists);
+    msg.channel.send(embed);
 }
 
 async function registrarRecord(cancion,author, servidor){
