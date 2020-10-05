@@ -20,6 +20,10 @@ const listaDeComandos = [
         value: 'Muestra la cola de reproduccion'
     },
     {
+        name: 'pl list',
+        value: 'Lista de playlists creadas'
+    },
+    {
         name: 'pl create {nombre playlist}',
         value: 'Crea una nueva playlist'
     },

@@ -43,6 +43,18 @@ async function existePlaylist(nombre, servidor){
     return playlist;
 }
 
+async function obtenerPlaylist(servidor){
+    let playlistProvider;
+    try {
+        playlistProvider = playlistModel.find({ server: servidor })
+        .then(function(pl){
+            return pl;
+        }); 
+    } catch (e) {}
+    let playlists = await playlistProvider;
+    return playlists;
+}
+
 async function registrarPlaylist(nombre,creador,servidor){
     let playlist = new playlistModel({
         name: nombre,
@@ -86,4 +98,4 @@ async function removerCancion(nomPlaylist, servidor, index){
     await playlist.save();
 }
 
-export { registrarPlaylist, existePlaylist, obtenerCanciones, asignarCancion, borrarPl, buscarCancion, removerCancion }
+export { registrarPlaylist, existePlaylist, obtenerCanciones, asignarCancion, borrarPl, buscarCancion, removerCancion, obtenerPlaylist }
