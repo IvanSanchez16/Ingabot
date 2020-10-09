@@ -19,7 +19,7 @@ function checarLiveListener() {
     setTimeout(() => {
         checaLive();
         checarLiveListener();
-    }, 1000 * 45);
+    }, 1000 * 70);
 }
 
 async function actualizaToken() {
@@ -48,7 +48,7 @@ async function checaLive() {
 }
 
 function enviarMensaje(streamer, data) {
-    var guild = client.guilds.cache.find(server => server.name === 'Pruebas Pulibot');
+    var guild = client.guilds.cache.find(server => server.name === 'IngaDiscord');
     var channel = guild.channels.cache.find(ch => ch.name === 'anuncios-streamers');
     channel.send(`Hey vergas @everyone, ${streamer.name} acaba de iniciar directo. Caeganle a pasar un buen rato`)
     var embed = new Discord.MessageEmbed();
