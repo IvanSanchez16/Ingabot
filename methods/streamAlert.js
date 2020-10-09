@@ -10,52 +10,56 @@ const client_secret = process.env.client_secret;
 var bearer_token;
 var streamers;
 
-async function streamAlert(){
+async function streamAlert() {
     await actualizaToken();
-    checaLive();
+    checarLiveListener();
 }
 
-async function actualizaToken(){
+function checarLiveListener() {
+    setTimeout(() => {
+        checaLive();
+        checarLiveListener();
+    }, 1000 * 45);
+}
+
+async function actualizaToken() {
     bearer_token = await getBearerToken();
     setTimeout(() => {
         actualizaToken();
-    },bearer_token.expires_in);
+    }, bearer_token.expires_in);
 }
 
-async function checaLive(){
+async function checaLive() {
     streamers = await getStreamers();
-    streamers.forEach( async(streamer) => {
-        var data = await getChannel(streamer.channel);
-        data = data.data[0];
-        let islive = data.is_live;
-        if ( !streamer.islive && islive ){ //inicio
-            enviarMensaje(streamer,data);
-            actualizarEstado(streamer.name);
-            return;
-        }
-        if ( streamer.islive && !islive ){ //termino
-            actualizarEstado(streamer.name);
-            return;
+    streamers.forEach(async (streamer) => {
+        try {
+            var data = await getChannel(streamer.channel);
+        } catch (error) {} 
+        if ( data ){
+            let islive = data.is_live;
+            if (!streamer.islive && islive) { //inicio
+                actualizarEstado(streamer.name);
+                enviarMensaje(streamer, data);
+            } else if (streamer.islive && !islive) { //termino
+                actualizarEstado(streamer.name);
+            }
         }
     });
-    setTimeout(() => {
-        checaLive();
-    },1000 * 30);
 }
 
-function enviarMensaje(streamer,data){
-    var guild = client.guilds.cache.find(server => server.name === 'IngaDiscord');
+function enviarMensaje(streamer, data) {
+    var guild = client.guilds.cache.find(server => server.name === 'Pruebas Pulibot');
     var channel = guild.channels.cache.find(ch => ch.name === 'anuncios-streamers');
     channel.send(`Hey vergas @everyone, ${streamer.name} acaba de iniciar directo. Caeganle a pasar un buen rato`)
     var embed = new Discord.MessageEmbed();
     embed.setTitle(data.title);
-    embed.addField(`https://www.twitch.tv/${streamer.channel}`,data.game);
+    embed.addField(`https://www.twitch.tv/${streamer.channel}`, data.game);
     embed.setThumbnail(data.thumbnail_url)
     embed.setColor([127, 33, 180]);
     channel.send(embed);
 }
 
-async function getChannel(canal){
+async function getChannel(canal) {
     let response = await fetch(`https://api.twitch.tv/helix/search/channels?query=${canal}`,
         {
             method: 'GET',
@@ -64,29 +68,39 @@ async function getChannel(canal){
                 "Client-Id": client_id
             }
         });
-    let data = await response.json();
+    let data;
+    try {
+        data = await response.json();
+    } catch (error) {}
     let gameid = data.data[0];
     let response2 = await fetch(`https://api.twitch.tv/helix/games?id=${gameid.game_id}`,
-    {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${bearer_token.access_token}`,
-            "Client-Id": client_id
-        }
-    });
-    let game = await response2.json();
+        {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${bearer_token.access_token}`,
+                "Client-Id": client_id
+            }
+        });
+    let game;
+    try {
+        game = await response2.json();
+    } catch (e) {}
     let gamess = game.data[0];
+    if (typeof gamess === 'undefined'){
+        gameid.game = 'Sin juego';
+        return data.data[0];
+    }
     gameid.game = gamess.name;
-    return data;
+    return data.data[0];
 }
 
-async function getBearerToken(){
+async function getBearerToken() {
     let response = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${client_id}&grant_type=client_credentials&client_secret=${client_secret}`,
         {
             method: 'POST'
         });
     let data = await response.json();
-    return data;      
+    return data;
 }
 
 export { streamAlert }
