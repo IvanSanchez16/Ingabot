@@ -6,6 +6,7 @@ import { comandosPlaylist, registrarRecord, reproducirRecord } from "./playlist.
 import { execute } from "../../config/googleApi.js";
 
 function comandos(msg) {
+    
     if (!servers[msg.guild.id]) {
         servers[msg.guild.id] = {
             queue: [],
@@ -167,9 +168,16 @@ function play(connection, msg) {
         fx = Math.log(fx) / 1.04;
         server.dispatcher.setVolumeLogarithmic(fx);
     });
-
+    
     server.currentSong = cancion;
     server.queue.shift();
+    
+    console.log('\nMetodo play');
+    console.log('Guild:');
+    console.log(msg.guild);
+    console.log('\nVariable servers:');
+    console.log(servers);
+    
     server.dispatcher.on('finish', function () {
         if (server.queue[0]) {
             play(connection, msg);
@@ -243,6 +251,13 @@ async function playSong(msg, args) {
 }
 
 function skip(msg) {
+
+    console.log('\nSkip')
+    console.log('Guild:')
+    console.log(msg.guild);
+    console.log('\nVariable servers:')
+    console.log(servers);
+
     var server = servers[msg.guild.id];
     if (msg.member.voice.channel != server.conexion) {
         msg.channel.send('No andes cagando el palo a los demás mamón')
