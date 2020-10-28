@@ -64,6 +64,8 @@ const minEspera = 5;
 
 function desconectarBot(voiceState){
     var server = servers[voiceState.guild.id];
+    if (!server)
+        return;
     server.conexion = null;
     server.currentSong = null;
     server.queue = [];
@@ -158,7 +160,7 @@ function play(connection, msg) {
 
     let cancion = server.queue[0];
     let id = cancion.id;
-    let link = 'www.youtube.com/watch?v=' + id.videoId;
+    let link = 'https://www.youtube.com/watch?v=' + id.videoId;
 
     let rs = ytdl(link, { filter: "audioonly", quality: "highestaudio" });
     server.dispatcher = connection.play(rs);
@@ -171,12 +173,6 @@ function play(connection, msg) {
     
     server.currentSong = cancion;
     server.queue.shift();
-    
-    console.log('\nMetodo play');
-    console.log('Guild:');
-    console.log(msg.guild);
-    console.log('\nVariable servers:');
-    console.log(servers);
     
     server.dispatcher.on('finish', function () {
         if (server.queue[0]) {
@@ -251,13 +247,6 @@ async function playSong(msg, args) {
 }
 
 function skip(msg) {
-
-    console.log('\nSkip')
-    console.log('Guild:')
-    console.log(msg.guild);
-    console.log('\nVariable servers:')
-    console.log(servers);
-
     var server = servers[msg.guild.id];
     if (msg.member.voice.channel != server.conexion) {
         msg.channel.send('No andes cagando el palo a los demás mamón')
