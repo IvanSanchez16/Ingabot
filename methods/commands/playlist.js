@@ -134,6 +134,7 @@ async function listaPlaylist(msg, servidor){
     embed.setColor([33, 180, 69 ]);
     playlists.forEach(pl => {
         if ( pl.name !== pl.author ){
+            console.log(pl.name);
             listapl = "";
             autor = msg.guild.members.cache.find(m => m.id === pl.author);
             try {
