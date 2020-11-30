@@ -157,9 +157,8 @@ async function listaPlaylist(msg, servidor){
                     listaPlaylists.push(plfield);
                     band3 = false;
                     listapl = aux;
-                    continue;
-                }
-                listapl = listapl + aux;
+                }else
+                    listapl = listapl + aux;
             });
             let plfield = {
                 name: band3 ? pl.name : "",
