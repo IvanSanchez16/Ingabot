@@ -170,6 +170,9 @@ function play(connection, msg) {
         fx = Math.log(fx) / 1.04;
         server.dispatcher.setVolumeLogarithmic(fx);
     });
+
+    console.log(cancion.nombre);
+    console.log(server.dispatcher);
     
     server.currentSong = cancion;
     server.queue.shift();
