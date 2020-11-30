@@ -132,9 +132,12 @@ async function listaPlaylist(msg, servidor){
     var autor;
     embed.setTitle("Lista de playlists");
     embed.setColor([33, 180, 69 ]);
+    let cont;
+    let band3;
     playlists.forEach(pl => {
         if ( pl.name !== pl.author ){
-            console.log(pl.name);
+            band3 = true;
+            cont = 1;
             listapl = "";
             autor = msg.guild.members.cache.find(m => m.id === pl.author);
             try {
@@ -145,11 +148,21 @@ async function listaPlaylist(msg, servidor){
             pl.canciones.forEach(cancion => {
                 let snippet = cancion.snippet;
                 snippet = snippet[0];
-                listapl = listapl + `-.${snippet.title}\n`;
+                let aux = `${cont++}-. ${snippet.title}\n`;
+                if( listapl.length + aux.length > 1024 ){
+                    let plfield = {
+                        name: band3 ? pl.name : "",
+                        value: listapl
+                    };
+                    listaPlaylists.push(plfield);
+                    band3 = false;
+                    listapl = aux;
+                    continue;
+                }
+                listapl = listapl + aux;
             });
-            console.log(listapl.length);
             let plfield = {
-                name: pl.name,
+                name: band3 ? pl.name : "",
                 value: listapl
             };
             listaPlaylists.push(plfield);
