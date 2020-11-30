@@ -136,6 +136,7 @@ async function listaPlaylist(msg, servidor){
         if ( pl.name !== pl.author ){
             listapl = "";
             autor = msg.guild.members.cache.find(m => m.id === pl.author);
+            console.log(autor);
             listapl = `Autor: ${autor.user.username}\nCanciones:\n`;
             pl.canciones.forEach(cancion => {
                 let snippet = cancion.snippet;
