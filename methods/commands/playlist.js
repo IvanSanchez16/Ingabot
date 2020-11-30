@@ -147,6 +147,7 @@ async function listaPlaylist(msg, servidor){
                 snippet = snippet[0];
                 listapl = listapl + `-.${snippet.title}\n`;
             });
+            console.log(listapl.length);
             let plfield = {
                 name: pl.name,
                 value: listapl
