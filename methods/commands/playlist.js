@@ -151,7 +151,7 @@ async function listaPlaylist(msg, servidor){
                 let aux = `${cont++}-. ${snippet.title}\n`;
                 if( listapl.length + aux.length > 1024 ){
                     let plfield = {
-                        name: band3 ? pl.name : "",
+                        name: band3 ? pl.name : "-",
                         value: listapl
                     };
                     listaPlaylists.push(plfield);
@@ -161,7 +161,7 @@ async function listaPlaylist(msg, servidor){
                     listapl = listapl + aux;
             });
             let plfield = {
-                name: band3 ? pl.name : "",
+                name: band3 ? pl.name : "-",
                 value: listapl
             };
             listaPlaylists.push(plfield);
