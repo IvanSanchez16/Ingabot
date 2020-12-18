@@ -41,11 +41,18 @@ client.on('message',(msg) => {
 });
 
 client.on('guildMemberAdd', member => {
+    var saludos = [
+        `Llegó ${member} ya vamonos`,
+        `Pinche ${member} como vale verga... oh que rollo we`,
+        `Denle la bienvenida a ${member}`
+    ];
+    
     var channel = member.guild.channels.cache.find(ch => ch.name === 'general');
     if (!channel) return;
     var role = member.guild.roles.cache.find(role => role.name === 'Ingainvitados');
     member.roles.add(role);
-    channel.send(`Llegó ${member} ya vamonos`);
+    let num = Math.floor(Math.random() * saludos.length);
+    channel.send(saludos[num]);
 });
 
 client.on('voiceStateUpdate',(oldState, newState) => {
