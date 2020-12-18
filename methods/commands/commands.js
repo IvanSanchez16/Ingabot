@@ -5,8 +5,7 @@ import { isComando, comando } from "../messages.js";
 import { comandosPlaylist, registrarRecord, reproducirRecord } from "./playlist.js";
 import { execute } from "../../config/googleApi.js";
 
-function comandos(msg) {
-    
+function comandos(msg) {  
     if (!servers[msg.guild.id]) {
         servers[msg.guild.id] = {
             queue: [],
@@ -109,6 +108,16 @@ function detallesCancion(msg, band, song = null, plName = null) {
     msg.channel.send(embed);
 }
 
+function listaComandos(msg) {
+    var embed = new Discord.MessageEmbed();
+    embed.setTitle('Lista de comandos');
+    embed.setDescription('Comandos disponibles empezando con -puli')
+    embed.addFields(listaDeComandos);
+    embed.setColor([29, 200, 44]);
+    embed.setFooter('Reacciona con una 💩 cuando el comando tiene exito');
+    msg.channel.send(embed);
+}
+
 function mostrarCola(msg) {
     var server = servers[msg.guild.id];
     if (!validarCola(msg, server))
@@ -140,16 +149,6 @@ function moverBot(voiceChannel){
     server.conexion = voiceChannel;
 }
 
-function listaComandos(msg) {
-    var embed = new Discord.MessageEmbed();
-    embed.setTitle('Lista de comandos');
-    embed.setDescription('Comandos disponibles empezando con -puli')
-    embed.addFields(listaDeComandos);
-    embed.setColor([29, 200, 44]);
-    embed.setFooter('Reacciona con una 💩 cuando el comando tiene exito');
-    msg.channel.send(embed);
-}
-
 function noExistente(msg) {
     msg.channel.send('Ese comando no existe, en el canal de ayuda vienen la lista');
 }
@@ -160,7 +159,9 @@ function play(connection, msg) {
 
     let cancion = server.queue[0];
     let id = cancion.id;
-    let link = 'https://www.youtube.com/watch?v=' + id.videoId;
+    let canal = cancion.snippet.channelTitle;
+    canal = quitarEspacios(canal);
+    let link = 'https://www.youtube.com/watch?v=' + id.videoId + '&ab_channel=' + canal;
 
     let rs = ytdl(link, { filter: "audioonly", quality: "highestaudio" });
     server.dispatcher = connection.play(rs);
@@ -169,11 +170,11 @@ function play(connection, msg) {
         let fx = (loudness - 23) * (-8 / 74);
         fx = Math.log(fx) / 1.04;
         server.dispatcher.setVolumeLogarithmic(fx);
-    });
-    
+    }); 
+
     server.currentSong = cancion;
     server.queue.shift();
-    
+
     server.dispatcher.on('finish', function () {
         if (server.queue[0]) {
             play(connection, msg);
@@ -186,6 +187,13 @@ function play(connection, msg) {
             }, 1000 * (60 * minEspera)); //5 min de espera para salirse
         }
     });
+    
+    server.dispatcher.on('error', (err) => {
+        console.log('Peto');
+        server.queue.splice(1,0,cancion);
+        play(connection, msg);
+    });
+    
 }
 
 function playPlaylist(canciones, msg) {
@@ -244,6 +252,15 @@ async function playSong(msg, args) {
             });
         }
     }
+}
+
+function quitarEspacios(canal){
+    let arreglo = canal.split(' ');
+    let newCanal = '';
+    arreglo.forEach(elemento => {
+        newCanal = newCanal + elemento;
+    });
+    return newCanal;
 }
 
 function skip(msg) {

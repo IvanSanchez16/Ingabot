@@ -12,10 +12,10 @@
   "dependencies": {
     "discord.js": "^12.5.1",
     "googleapis": "^59.0.0",
-    "mongoose": "^5.10.18",
+    "mongoose": "^5.11.8",
     "node-fetch": "^2.6.1",
     "opusscript": "0.0.7",
-    "ytdl-core": "^3.4.2"
+    "ytdl-core": "^4.1.7"
   },
   "type": "module"
 }
