@@ -16,7 +16,7 @@ client.on('ready', () => {
 
 client.on('message',(msg) => {
     if ( !msg.author.bot ){
-        if ( msg.channel.name === 'comandos' || msg.channel.name === 'ayuda'){ //Comandos
+        if ( msg.channel.name === 'comandos' || msg.channel.name === 'ayuda' || msg.channel.name === 'comandosprueba'){ //Comandos
             comandos(msg);
             return;
         }
