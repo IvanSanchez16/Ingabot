@@ -1,3 +1,4 @@
+import ytdl from "ytdl-core"
 import { obtenerPlaylist,existePlaylist, registrarPlaylist, asignarCancion, obtenerCanciones, borrarPl, buscarCancion, removerCancion } from "../../models/Playlist.js";
 import { execute } from "../../config/googleApi.js";
 import { playPlaylist, detallesCancion } from "./commands.js";
@@ -57,6 +58,7 @@ async function crear(msg, args, servidor) {
         nombre = nombre.trim();
         let creador = msg.author.id;
         registrarPlaylist(nombre.toLocaleLowerCase(),creador,servidor);
+        msg.channel.send(`la playlist ${nombre} ha sido creada`);
     }
 }
 
@@ -83,6 +85,25 @@ async function editarPlaylist(msg, args, servidor) {
         } catch (error) { console.log(error) }
         song.nombre = cancion;
         song.author = msg.author;
+        let id = song.id;
+        let canal = song.snippet.channelTitle;
+        canal = quitarEspacios(canal);
+        let link = 'https://www.youtube.com/watch?v=' + id.videoId + '&ab_channel=' + canal;
+        await ytdl.getBasicInfo(link, { filter: "audioonly", quality: "highestaudio" }).then((value) => {
+            song.duracion = value.player_response.videoDetails.lengthSeconds;
+            let loudness;
+            if(!value.player_response.playerConfig){
+                loudness = 4;
+            } else {
+                loudness = value.player_response.playerConfig.audioConfig.loudnessDb;
+                if(!loudness)
+                    loudness = 4;    
+            }
+            let fx = (loudness - 23) * (-8 / 74);
+            fx = Math.log(fx) / 1.04;
+            song.volumen = fx;
+        });
+        song.link = link;
 
         detallesCancion(msg, 3, song, playlist);
         asignarCancion(playlist, song, servidor);
@@ -171,6 +192,15 @@ async function listaPlaylist(msg, servidor){
     msg.channel.send(embed);
 }
 
+function quitarEspacios(canal){
+    let arreglo = canal.split(' ');
+    let newCanal = '';
+    arreglo.forEach(elemento => {
+        newCanal = newCanal + elemento;
+    });
+    return newCanal;
+}
+
 async function registrarRecord(cancion,author, servidor){
     let band;
     try {
@@ -199,7 +229,6 @@ async function reproducirRecord(msg, args){
         try {
             var canciones = await obtenerCanciones( msg.author.id, servidor );
         } catch (error) { console.log(error); }
-    
         playPlaylist(canciones,msg);
     }
 }
