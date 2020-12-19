@@ -1,4 +1,3 @@
-
 function comandosCine(msg){
     var mensaje = msg.content;
     var args = mensaje.split(' ');

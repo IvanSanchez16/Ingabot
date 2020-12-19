@@ -4,6 +4,7 @@ import { listaDeComandos } from "../../config/listaComandos.js";
 import { isComando, comando } from "../messages.js";
 import { comandosPlaylist, registrarRecord, reproducirRecord } from "./playlist.js";
 import { execute } from "../../config/googleApi.js";
+import { arreglarplaylists } from "../../models/Playlist.js";
 
 function comandos(msg) {  
     if (!servers[msg.guild.id]) {
@@ -100,8 +101,14 @@ function detallesCancion(msg, band, song = null, plName = null) {
         default:
             title = 'En reproducción';
     }
+    let cancion = ( band === 1 ? server.currentSong : song );
+    let minDuracion = Math.trunc(cancion.duracion / 60);
+    let segDuracion = cancion.duracion % 60;
+    if(segDuracion < 10)
+        segDuracion = '0'+segDuracion;
+    let duracion = `${minDuracion}:${segDuracion}`;
     embed.setTitle(title);
-    embed.setDescription(snippet.title);
+    embed.setDescription(snippet.title + ' ('+duracion+')');
     embed.setThumbnail(snippet.thumbnails.high.url);
     embed.setColor([33, 180, 46]);
     embed.setFooter('[' + (band === 1 ? server.currentSong.author.username : song.author.username) + ']');
@@ -125,11 +132,16 @@ function mostrarCola(msg) {
     var embed = new Discord.MessageEmbed();
     let cont = 0;
     var listaDeReproduccion = [];
-    let song;
+    let song, minDuracion, segDuracion, duracion;
     server.queue.forEach(cancion => {
-        if (cont < 15) {
+        if (cont < 20) {
+            minDuracion = Math.trunc(cancion.duracion / 60);
+            segDuracion = cancion.duracion % 60;
+            if(segDuracion < 10)
+                segDuracion = '0'+segDuracion;
+            duracion = `${minDuracion}:${segDuracion}`;
             song = {
-                name: '#' + (++cont) + '   ' + cancion.snippet.title,
+                name: '#' + (++cont) + '   ' + cancion.snippet.title + ` (${duracion})`,
                 value: '[' + cancion.author.username + ']'
             }
             listaDeReproduccion.push(song);
@@ -150,6 +162,7 @@ function moverBot(voiceChannel){
 }
 
 function noExistente(msg) {
+    //arreglarplaylists(msg);
     msg.channel.send('Ese comando no existe, en el canal de ayuda vienen la lista');
 }
 
@@ -158,19 +171,9 @@ function play(connection, msg) {
     server.bandSalirse = false;
 
     let cancion = server.queue[0];
-    let id = cancion.id;
-    let canal = cancion.snippet.channelTitle;
-    canal = quitarEspacios(canal);
-    let link = 'https://www.youtube.com/watch?v=' + id.videoId + '&ab_channel=' + canal;
-
-    let rs = ytdl(link, { filter: "audioonly", quality: "highestaudio" });
+    let rs = ytdl(cancion.link, { filter: "audioonly", quality: "highestaudio" });
     server.dispatcher = connection.play(rs);
-    ytdl.getBasicInfo(link, { filter: "audioonly", quality: "highestaudio" }).then((value) => {
-        let loudness = value.player_response.playerConfig.audioConfig.loudnessDb;
-        let fx = (loudness - 23) * (-8 / 74);
-        fx = Math.log(fx) / 1.04;
-        server.dispatcher.setVolumeLogarithmic(fx);
-    }); 
+    server.dispatcher.setVolumeLogarithmic(cancion.volumen); 
 
     server.currentSong = cancion;
     server.queue.shift();
@@ -211,7 +214,10 @@ function playPlaylist(canciones, msg) {
         let song = {
             id: cancion.id[0],
             snippet: cancion.snippet[0],
-            nombre: cancion.nombre
+            nombre: cancion.nombre,
+            link: cancion.link,
+            duracion: cancion.duracion,
+            volumen: cancion.volumen
         }
         song.author = msg.author;
         server.queue.push(song);
@@ -238,6 +244,26 @@ async function playSong(msg, args) {
         }
         cancion.author = msg.author;
         cancion.nombre = nombre;
+
+        let id = cancion.id;
+        let canal = cancion.snippet.channelTitle;
+        canal = quitarEspacios(canal);
+        let link = 'https://www.youtube.com/watch?v=' + id.videoId + '&ab_channel=' + canal;
+        await ytdl.getBasicInfo(link, { filter: "audioonly", quality: "highestaudio" }).then((value) => {
+            cancion.duracion = value.player_response.videoDetails.lengthSeconds;
+            let loudness;
+            if(!value.player_response.playerConfig){
+                loudness = 4;
+            } else {
+                loudness = value.player_response.playerConfig.audioConfig.loudnessDb;
+                if(!loudness)
+                    loudness = 4;    
+            }
+            let fx = (loudness - 23) * (-8 / 74);
+            fx = Math.log(fx) / 1.04;
+            cancion.volumen = fx;
+        });
+        cancion.link = link;
 
         var server = servers[msg.guild.id];
         detallesCancion(msg, (!server.currentSong || !server.conexion ? 4 : 2), cancion);

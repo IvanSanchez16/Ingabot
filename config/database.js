@@ -8,7 +8,14 @@ var playlistSchemaJSON = {
     name: String,
     author: String,
     server: String,
-    canciones: [ { id: Array, snippet: Array, nombre: String  } ]
+    canciones: [{ 
+        id: Array,
+        snippet: Array,
+        nombre: String,
+        link:String,
+        duracion:String,
+        volumen:Number 
+    }]
 };
 
 var streamerSchemaJSON = {
