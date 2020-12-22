@@ -48,6 +48,9 @@ function comandos(msg) {
             case 'pl':
                 comandosPlaylist(msg, args);
                 break;
+            case 'shuffle':
+                barajearCola(msg);
+                break;
             default:
                 noExistente(msg); //Inserta comando que no existe
                 return;
@@ -61,6 +64,23 @@ function comandos(msg) {
 
 var servers = {};
 const minEspera = 5;
+
+function barajearCola(msg){
+    var server = servers[msg.guild.id];
+    if (!validarCola(msg, server))
+        return;
+        
+    let cola = server.queue;
+
+    for (let i = cola.length - 1; i > 0; i--) {
+        let indiceAleatorio = Math.floor(Math.random() * (i + 1));
+        let temporal = cola[i];
+        cola[i] = cola[indiceAleatorio];
+        cola[indiceAleatorio] = temporal;
+    }
+
+    msg.channel.send('Cola de reproducción revuelta');
+}
 
 function desconectarBot(voiceState){
     var server = servers[voiceState.guild.id];
@@ -137,7 +157,7 @@ function mostrarCola(msg) {
                 segDuracion = '0'+segDuracion;
             duracion = `${minDuracion}:${segDuracion}`;
             song = {
-                name: '#' + (++cont) + '   ' + cancion.snippet.title + ` (${duracion})`,
+                name: '#' + (++cont) + '   ' + cancion.snippet.title + `\nDuración: (${duracion})`,
                 value: '[' + cancion.author.username + ']'
             }
             listaDeReproduccion.push(song);
