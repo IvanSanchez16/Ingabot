@@ -5,7 +5,7 @@ import { isComando, comando } from "../messages.js";
 import { comandosPlaylist, registrarRecord, reproducirRecord } from "./playlist.js";
 import { execute } from "../../config/googleApi.js";
 import { arreglarplaylists } from "../../models/Playlist.js";
-
+    
 function comandos(msg) {  
     if (!servers[msg.guild.id]) {
         servers[msg.guild.id] = {
@@ -48,6 +48,9 @@ function comandos(msg) {
             case 'pl':
                 comandosPlaylist(msg, args);
                 break;
+            case 'shuffle':
+                barajearCola(msg);
+                break;
             default:
                 noExistente(msg); //Inserta comando que no existe
                 return;
@@ -62,6 +65,23 @@ function comandos(msg) {
 var servers = {};
 const minEspera = 5;
 
+function barajearCola(msg){
+    var server = servers[msg.guild.id];
+    if (!validarCola(msg, server))
+        return;
+        
+    let cola = server.queue;
+
+    for (let i = cola.length - 1; i > 0; i--) {
+        let indiceAleatorio = Math.floor(Math.random() * (i + 1));
+        let temporal = cola[i];
+        cola[i] = cola[indiceAleatorio];
+        cola[indiceAleatorio] = temporal;
+    }
+
+    msg.channel.send('Cola de reproducción revuelta');
+}
+
 function desconectarBot(voiceState){
     var server = servers[voiceState.guild.id];
     if (!server)
@@ -75,10 +95,6 @@ function detallesCancion(msg, band, song = null, plName = null) {
     var server = servers[msg.guild.id];
     if (band === 1 && !server.currentSong) {
         msg.channel.send('No hay nada sonando verga');
-        return;
-    }
-    if (band === 1 && Math.floor(Math.random() * 100) === 4) {
-        msg.channel.send('Que te valga verga');
         return;
     }
     let snippet = band === 1 ? server.currentSong.snippet : song.snippet;
@@ -108,7 +124,7 @@ function detallesCancion(msg, band, song = null, plName = null) {
         segDuracion = '0'+segDuracion;
     let duracion = `${minDuracion}:${segDuracion}`;
     embed.setTitle(title);
-    embed.setDescription(snippet.title + ' ('+duracion+')');
+    embed.setDescription(snippet.title + '\nDuración: ('+duracion+')');
     embed.setThumbnail(snippet.thumbnails.high.url);
     embed.setColor([33, 180, 46]);
     embed.setFooter('[' + (band === 1 ? server.currentSong.author.username : song.author.username) + ']');
@@ -141,7 +157,7 @@ function mostrarCola(msg) {
                 segDuracion = '0'+segDuracion;
             duracion = `${minDuracion}:${segDuracion}`;
             song = {
-                name: '#' + (++cont) + '   ' + cancion.snippet.title + ` (${duracion})`,
+                name: '#' + (++cont) + '   ' + cancion.snippet.title + `\nDuración: (${duracion})`,
                 value: '[' + cancion.author.username + ']'
             }
             listaDeReproduccion.push(song);

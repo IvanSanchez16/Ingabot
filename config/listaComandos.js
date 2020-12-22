@@ -20,6 +20,10 @@ const listaDeComandos = [
         value: 'Muestra la cola de reproduccion'
     },
     {
+        name: 'shuffle',
+        value: 'Barajea la cola de reproduccion'
+    },
+    {
         name: 'pl list',
         value: 'Lista de playlists creadas'
     },
