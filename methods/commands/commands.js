@@ -5,7 +5,7 @@ import { isComando, comando } from "../messages.js";
 import { comandosPlaylist, registrarRecord, reproducirRecord } from "./playlist.js";
 import { execute } from "../../config/googleApi.js";
 import { arreglarplaylists } from "../../models/Playlist.js";
-
+    
 function comandos(msg) {  
     if (!servers[msg.guild.id]) {
         servers[msg.guild.id] = {
@@ -77,10 +77,6 @@ function detallesCancion(msg, band, song = null, plName = null) {
         msg.channel.send('No hay nada sonando verga');
         return;
     }
-    if (band === 1 && Math.floor(Math.random() * 100) === 4) {
-        msg.channel.send('Que te valga verga');
-        return;
-    }
     let snippet = band === 1 ? server.currentSong.snippet : song.snippet;
     //Llega como array en ese escenario
     if (band === 5)
@@ -108,7 +104,7 @@ function detallesCancion(msg, band, song = null, plName = null) {
         segDuracion = '0'+segDuracion;
     let duracion = `${minDuracion}:${segDuracion}`;
     embed.setTitle(title);
-    embed.setDescription(snippet.title + ' ('+duracion+')');
+    embed.setDescription(snippet.title + '\nDuración: ('+duracion+')');
     embed.setThumbnail(snippet.thumbnails.high.url);
     embed.setColor([33, 180, 46]);
     embed.setFooter('[' + (band === 1 ? server.currentSong.author.username : song.author.username) + ']');
