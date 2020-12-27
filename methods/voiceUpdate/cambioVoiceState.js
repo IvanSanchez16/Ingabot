@@ -25,7 +25,7 @@ function checarPutoElUltimo(oldVoiceState, newVoiceState){
     let hora = fecha.getHours();
     console.log(hora);
     var channel = newVoiceState.guild.channels.cache.find(ch => ch.id === newVoiceState.channelID);
-    if ( !channel && (hora >= 21 || hora < 9) ) {
+    if ( !channel && (hora >= 4 || hora < 17) ) {
         channel = oldVoiceState.guild.channels.cache.find(ch => ch.id === oldVoiceState.channelID);
         let miembros = channel.members.array();
         if ( miembros.length === 2 ){
