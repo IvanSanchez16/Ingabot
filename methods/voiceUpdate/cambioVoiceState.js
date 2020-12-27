@@ -2,6 +2,8 @@ import { Id } from "../../config/client.js";
 import { moverBot, desconectarBot } from "../commands/commands.js";
 
 function cambioEstadoVoz(oldState, newState){
+    var canal = newState.guild.channels.cache.find(ch => ch.id === newState.channelID);
+    console.log(canal.members.array());
     //Pulibot
     if ( newState.id === Id ){
         if ( newState.connection && typeof oldState.channelID !== 'undefined' ){
