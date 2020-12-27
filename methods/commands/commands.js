@@ -64,6 +64,7 @@ function comandos(msg) {
 
 var servers = {};
 const minEspera = 5;
+var contError = 0;
 
 function barajearCola(msg){
     var server = servers[msg.guild.id];
@@ -209,6 +210,10 @@ function play(connection, msg) {
     
     server.dispatcher.on('error', (err) => {
         console.log('Peto');
+        if (contError++ >= 5){
+            contError = 0;
+            play(connection, msg);
+        }
         server.queue.splice(1,0,cancion);
         play(connection, msg);
     });
