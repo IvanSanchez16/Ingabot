@@ -2,7 +2,7 @@ import { Client } from "discord.js";
 import { mensajesGeneral } from "../methods/messages.js"
 import { comandos } from "../methods/commands/commands.js"
 import { comandosCine } from "../methods/commands/cine.js";
-import { cambioEstadoVoz } from "../methods/cambioVoiceState.js";
+import { cambioEstadoVoz } from "../methods/voiceUpdate/cambioVoiceState.js";
 import { comandosCubiculo } from "../methods/commands/cubiculo.js";
 import { streamAlert } from "../methods/streamAlert.js";
 
