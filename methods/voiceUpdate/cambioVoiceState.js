@@ -83,14 +83,16 @@ function decirPuto(puto, newVoiceState){
                 for(let k = 0 ; k<largo ; k++){
                     let ch = puto.username.toLowerCase().charAt(k);
                     if( ch === 'a' || ch === 'e' || ch === 'i' || ch === 'o' || ch === 'u' || ch === 'y'){
-                        mensaje = `put${puto.username.substring(k,largo)}`
+                        mensaje = `put${puto.username.substring(k,largo)}`;
+                        break;
                     }
                 }
             }
             for(let i = largo - 4 ; i >= 0 ; i--){
                 let c = puto.username.toLowerCase().charAt(i);
                 if( c === 'a' || c === 'e' || c === 'i' || c === 'o' || c === 'u' || c === 'y'){
-                    mensaje = `put${puto.username.substring(i,largo)}`
+                    mensaje = `put${puto.username.substring(i,largo)}`;
+                    break;
                 }
             }
     }
