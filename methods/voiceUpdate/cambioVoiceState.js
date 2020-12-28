@@ -14,18 +14,18 @@ function cambioEstadoVoz(oldState, newState){
             return;
         }
     }
-    
-    let puto = checarPutoElUltimo(oldState, newState);
-    if ( puto )
-        decirPuto(puto, newState);
+    var fecha = new Date();
+    let hora = fecha.getHours();
+    if (hora >= 4 && hora < 15){
+        let puto = checarPutoElUltimo(oldState, newState);
+        if ( puto )
+            decirPuto(puto, newState);
+    }
 }
 
 function checarPutoElUltimo(oldVoiceState, newVoiceState){
-    var fecha = new Date();
-    let hora = fecha.getHours();
-    console.log(hora);
     var channel = newVoiceState.guild.channels.cache.find(ch => ch.id === newVoiceState.channelID);
-    if ( !channel && (hora >= 4 || hora < 17) ) {
+    if ( !channel ) {
         channel = oldVoiceState.guild.channels.cache.find(ch => ch.id === oldVoiceState.channelID);
         let miembros = channel.members.array();
         if ( miembros.length === 2 ){
