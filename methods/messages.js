@@ -50,10 +50,6 @@ function mensajesGeneral(msg){
         tePregunto(msg)
         return;
     }
-    if ( msg.content.substr(0, 3) === 'put' && msg.content.length <= 10 && msg.content.length >= 6 ){ //Cuando se dice putifica el nombre de alguien
-        putoElUltimo(msg);
-        return;
-    }
     if ( msg.content.toLocaleLowerCase() === 'hola puli' ){ //Saludo al bot
         saludo(msg);
         return;
@@ -113,25 +109,6 @@ function mentadaDeMadre(msg) {
 function pulicuata(msg){
     let number = Math.floor(Math.random() * respPulicuata.length);
     msg.channel.send( respPulicuata[number] );
-}
-
-function putoElUltimo(msg){
-    if ( puto === null ){
-        puto = msg.content;
-        contador++;
-        return;
-    }
-    if ( msg.content === puto ){
-        contador++;
-    }else{
-        contador=0;
-        puto = null;
-    }
-    if ( contador >= 2 ){
-        msg.channel.send(puto);
-        contador=0;
-        puto = null;
-    }
 }
 
 function respQuien(msg){
