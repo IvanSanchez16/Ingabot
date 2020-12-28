@@ -23,6 +23,7 @@ function cambioEstadoVoz(oldState, newState){
 function checarPutoElUltimo(oldVoiceState, newVoiceState){
     var fecha = new Date();
     let hora = fecha.getHours();
+    console.log(hora);
     var channel = newVoiceState.guild.channels.cache.find(ch => ch.id === newVoiceState.channelID);
     if ( !channel && (hora >= 4 || hora < 17) ) {
         channel = oldVoiceState.guild.channels.cache.find(ch => ch.id === oldVoiceState.channelID);
