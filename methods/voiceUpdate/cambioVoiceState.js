@@ -1,6 +1,8 @@
 import { Id } from "../../config/client.js";
 import { moverBot, desconectarBot } from "../commands/commands.js";
 
+var canales = {};
+
 function cambioEstadoVoz(oldState, newState){
     //Pulibot
     if ( newState.id === Id ){
@@ -14,12 +16,30 @@ function cambioEstadoVoz(oldState, newState){
             return;
         }
     }
-    var fecha = new Date();
-    let hora = fecha.getHours();
-    if (hora >= 4 && hora < 15){
-        let puto = checarPutoElUltimo(oldState, newState);
-        if ( puto )
-            decirPuto(puto, newState);
+    if ( newState.channelID && !canales[newState.channelID] ) {
+        canales[newState.channelID] = {
+            entrada: Date.now()
+        };
+        return;
+    }
+    if( oldState.channelID ) {
+        let canal = canales[oldState.channelID];
+        let horaAct = Date.now();
+        if ( (horaAct - canal.entrada) >= 5400000 ){
+            var fecha = new Date();
+            let hora = fecha.getHours();
+            if (hora >= 4 && hora < 15){
+                let puto = checarPutoElUltimo(oldState, newState);
+                if ( puto ){
+                    decirPuto(puto, newState);
+                    canales[oldState.channelID] = null;
+                }
+            }   
+        }
+        let channel = oldState.guild.channels.cache.find(ch => ch.id === oldState.channelID);
+        let miembros = channel.members.array();
+        if( miembros.length === 0 ) 
+            canales[oldState.channelID] = null;
     }
 }
 
