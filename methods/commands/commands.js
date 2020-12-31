@@ -188,6 +188,8 @@ function play(connection, msg) {
     server.bandSalirse = false;
 
     let cancion = server.queue[0];
+    if( !cancion )
+        return;
     let rs = ytdl(cancion.link, { filter: "audioonly", quality: "highestaudio" });
     server.dispatcher = connection.play(rs);
     server.dispatcher.setVolumeLogarithmic(cancion.volumen); 
@@ -196,6 +198,7 @@ function play(connection, msg) {
     server.queue.shift();
 
     server.dispatcher.on('finish', function () {
+        contError = 0;
         if (server.queue[0]) {
             play(connection, msg);
         } else {
