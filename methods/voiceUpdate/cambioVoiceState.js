@@ -53,10 +53,10 @@ function checarPutoElUltimo(oldVoiceState, newVoiceState){
         if ( miembros.length === 2 ){
             let user1 = miembros[0];
             let user2 = miembros[1];
-            if ( user1.bot ){
+            if ( user1.user.bot ){
                 return user2.user;
             }
-            if ( user2.bot ){
+            if ( user2.user.bot ){
                 return user1.user;
             }
         }
