@@ -68,11 +68,14 @@ async function getChannel(canal) {
                 "Client-Id": client_id
             }
         });
-    let data;
+    let data, dataRaw;
     try {
-        data = await response.json();
+        dataRaw = await response.json();
     } catch (error) {}
-    let gameid = data.data[0];
+    let i = 0;
+    while (dataRaw[i].display_name != streamer.channel)
+        i++;
+    data = dataRaw[i];
     let response2 = await fetch(`https://api.twitch.tv/helix/games?id=${gameid.game_id}`,
         {
             method: 'GET',

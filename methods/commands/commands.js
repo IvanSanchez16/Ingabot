@@ -4,7 +4,6 @@ import { listaDeComandos } from "../../config/listaComandos.js";
 import { isComando, comando } from "../messages.js";
 import { comandosPlaylist, registrarRecord, reproducirRecord } from "./playlist.js";
 import { execute } from "../../config/googleApi.js";
-import { arreglarplaylists } from "../../models/Playlist.js";
     
 function comandos(msg) {  
     if (!servers[msg.guild.id]) {
@@ -215,6 +214,9 @@ function play(connection, msg) {
         console.log('Peto');
         if (contError++ >= 5){
             contError = 0;
+            cancion = server.queue[0];
+            if( !cancion )
+                return;
             play(connection, msg);
         }
         server.queue.splice(1,0,cancion);

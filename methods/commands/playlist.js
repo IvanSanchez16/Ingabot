@@ -153,9 +153,13 @@ async function listaPlaylist(msg, servidor){
     var autor;
     embed.setTitle("Lista de playlists");
     embed.setColor([33, 180, 69 ]);
-    let cont;
+    let cont, minDuracion, segDuracion, duracion, contArreglo, hrsDuracion;
     let band3;
+    var segPlaylist;
     playlists.forEach(pl => {
+        hrsDuracion = 0;
+        segPlaylist = 0;
+        contArreglo = 0;
         if ( pl.name !== pl.author ){
             band3 = true;
             cont = 1;
@@ -167,15 +171,24 @@ async function listaPlaylist(msg, servidor){
                 listapl = `Autor: Desconocido\nCanciones:\n`;
             }
             pl.canciones.forEach(cancion => {
+                segPlaylist += parseInt(cancion.duracion, 10);
                 let snippet = cancion.snippet;
                 snippet = snippet[0];
-                let aux = `${cont++}-. ${snippet.title}\n`;
+                minDuracion = Math.trunc(cancion.duracion / 60);
+                segDuracion = cancion.duracion % 60;
+                if(segDuracion < 10)
+                    segDuracion = '0'+segDuracion;
+                duracion = `${minDuracion}:${segDuracion}`;
+                let aux = `${cont++}-. ${snippet.title} (${duracion})\n`;
                 if( listapl.length + aux.length > 1024 ){
                     let plfield = {
                         name: band3 ? pl.name : "-",
                         value: listapl
                     };
                     listaPlaylists.push(plfield);
+                    if ( band3 )
+                        contArreglo = listaPlaylists.length - 1;
+
                     band3 = false;
                     listapl = aux;
                 }else
@@ -186,6 +199,14 @@ async function listaPlaylist(msg, servidor){
                 value: listapl
             };
             listaPlaylists.push(plfield);
+
+            let primerElemento = band3 ? listaPlaylists[ listaPlaylists.length - 1 ] : listaPlaylists[contArreglo];
+            minDuracion = Math.trunc(segPlaylist / 60);
+            if ( minDuracion >= 60 ){
+                hrsDuracion = Math.trunc(minDuracion / 60);
+                minDuracion = minDuracion % 60;
+            }
+            primerElemento.name += (hrsDuracion == 0 ? ` (${minDuracion} min)` : ` (${hrsDuracion} hr ${minDuracion} min)`);
         }
     });
     embed.addFields(listaPlaylists);
