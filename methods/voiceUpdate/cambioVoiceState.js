@@ -24,6 +24,8 @@ function cambioEstadoVoz(oldState, newState){
     }
     if( oldState.channelID ) {
         let canal = canales[oldState.channelID];
+        if ( !canal )
+            return;
         let horaAct = Date.now();
         if ( (horaAct - canal.entrada) >= 5400000 ){
             var fecha = new Date();
